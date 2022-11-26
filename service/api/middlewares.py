@@ -14,7 +14,6 @@ from service.response import server_error
 
 
 class AccessMiddleware(BaseHTTPMiddleware):
-
     async def dispatch(
         self,
         request: Request,
@@ -39,7 +38,6 @@ class AccessMiddleware(BaseHTTPMiddleware):
 
 
 class ExceptionHandlerMiddleware(BaseHTTPMiddleware):
-
     async def dispatch(
         self,
         request: Request,
@@ -64,7 +62,7 @@ def add_middlewares(app: FastAPI) -> None:
     app.add_middleware(AccessMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=['*'],
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
