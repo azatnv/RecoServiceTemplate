@@ -17,8 +17,9 @@ CONTAINER_NAME := reco_service
 # Prepare
 
 .venv:
-	poetry install --no-root
-	poetry check
+	python venv .venv
+	source $(BIN)/activate
+	pip install -r requirements.txt
 
 setup: .venv
 
