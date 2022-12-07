@@ -64,18 +64,21 @@ async def get_reco(
         raise BearerAccessTokenError()
     if user_id > 10**9:
         raise UserNotFoundError(error_message=f"User {user_id} not found")
-    if model_name != "test_model":
-        raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
     k_recs = request.app.state.k_recs
 
-    try:
-        reco = knn_model.predict(user_id)
-        if not reco:
-            reco = popular_model.get_popular_reco(user_id, k_recs)
-        # reco = list(range(k_recs))
-    except TypeError:
+    if model_name == "test_model":
         reco = list(range(k_recs))
+    elif model_name == "knn":
+        try:
+            reco = knn_model.predict(user_id)
+            if not reco:
+                reco = popular_model.get_popular_reco(user_id, k_recs)
+        except TypeError:
+            reco = list(range(k_recs))
+    else:
+        raise ModelNotFoundError(error_message=f"Model {model_name} not found")
+
     return RecoResponse(user_id=user_id, items=reco)
 
 
