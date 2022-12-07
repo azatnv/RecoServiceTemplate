@@ -20,6 +20,9 @@ orjson = "^3.7.7"
 starlette = "^0.14.2"
 rectools = "^0.3.0"
 implicit = "0.4.4"
+lightfm = "^1.16"
+cython = "^0.29.32"
+scipy = "^1.9.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
