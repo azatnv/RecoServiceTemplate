@@ -31,7 +31,7 @@ bearer_scheme = HTTPBearer()
 router = APIRouter()
 
 responses = {
-    '401': AuthorizationResponse().get_response(),   
+    '401': AuthorizationResponse().get_response(),   # type: ignore
     '403': ForbiddenResponse().get_response(),       # type: ignore
     '404': NotFoundError().get_response()            # type: ignore
 }
