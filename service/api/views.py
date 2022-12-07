@@ -16,7 +16,7 @@ from service.api.responses import (
     NotFoundError,
 )
 from service.log import app_logger
-from service.reco_models.reco_models import simple_popular_model, KnnModel
+from service.reco_models.reco_models import KnnModel, simple_popular_model
 
 popular_model = simple_popular_model()  # type: ignore
 knn_model = KnnModel()
