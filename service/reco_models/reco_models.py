@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import List, Dict
+from typing import Dict, List
 
 cwd = os.path.dirname(__file__)
 
@@ -26,7 +26,6 @@ class simple_popular_model():
                 'rb'
             )
         )
-     
 
     def get_popular_reco(
         self,
@@ -34,7 +33,6 @@ class simple_popular_model():
         k_recs: int
     ) -> List:
         # проверяю юзер в датасете или нет
-        
         try:
             category = self.users_dictionary[user_id]
             reco = self.popular_dictionary[category][:k_recs]
