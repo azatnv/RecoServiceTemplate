@@ -6,7 +6,7 @@ RUN pip install -U --no-cache-dir pip poetry setuptools wheel && \
     poetry build -f wheel && \
     poetry export -f requirements.txt -o requirements.txt --without-hashes && \
     pip wheel -w dist -r requirements.txt
-
+    
 
 FROM python:3.8-slim-buster as runtime
 
@@ -26,4 +26,5 @@ COPY --from=build main.py gunicorn.config.py ./
 RUN pip install -U --no-cache-dir pip dist/*.whl && \
     rm -rf dist
 
-CMD ["gunicorn", "main:app", "-c", "gunicorn.config.py"]
+CMD ["gunicorn", "main:app"]
+#"-c", "gunicorn.config.py"]

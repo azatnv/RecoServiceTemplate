@@ -10,8 +10,15 @@ from service.api.exceptions import (
     ModelNotFoundError,
     UserNotFoundError,
 )
+from service.api.responses import (
+    AuthorizationResponse,
+    ForbiddenResponse,
+    NotFoundError,
+)
 from service.log import app_logger
-from service.models import Error, ErrorResponse
+from service.reco_models.reco_models import simple_popular_model
+
+popular_model = simple_popular_model()  # type: ignore
 
 
 class RecoResponse(BaseModel):
@@ -23,6 +30,12 @@ bearer_scheme = HTTPBearer()
 
 router = APIRouter()
 
+responses = {
+    '401': AuthorizationResponse().get_response(),   
+    '403': ForbiddenResponse().get_response(),       # type: ignore
+    '404': NotFoundError().get_response()            # type: ignore
+}
+
 
 @router.get(
     path="/health",
@@ -30,82 +43,6 @@ router = APIRouter()
 )
 async def health() -> str:
     return "I am alive"
-
-
-# Null values are ignored by OpenAPI.
-# Problem: https://github.com/tiangolo/fastapi/issues/5559
-responses = {
-    401: {
-        "model": ErrorResponse,
-        "description": "Error: Unauthorized",
-        "content": {
-            "application/json": {
-                "example": ErrorResponse(
-                    errors=[
-                        Error(
-                            error_key="incorrect_bearer_key",
-                            error_message=(
-                                "Authorization failure due to incorrect token"
-                                ),
-                            error_loc=None,
-                        )
-                    ]
-                )
-            }
-        },
-    },
-    403: {
-        "model": ErrorResponse,
-        "description": "Error: Forbidden",
-        "content": {
-            "application/json": {
-                "example": ErrorResponse(
-                    errors=[
-                        Error(
-                            error_key="http_exception",
-                            error_message="Not authenticated",
-                            error_loc=None,
-                        )
-                    ]
-                )
-            }
-        },
-    },
-    404: {
-        "model": ErrorResponse,
-        "description": "Error: Not Found",
-        "content": {
-            "application/json": {
-                "examples": {
-                    "example_1": {
-                        "summary": "Model error",
-                        "value": ErrorResponse(
-                            errors=[
-                                Error(
-                                    error_key="model_not_found",
-                                    error_message="Model is unknown",
-                                    error_loc=None,
-                                )
-                            ]
-                        ),
-                    },
-                    "example_2": {
-                        "summary": "User error",
-                        "value": ErrorResponse(
-                            errors=[
-                                Error(
-                                    error_key="user_not_found",
-                                    error_message="User is unknown",
-                                    error_loc=None,
-                                )
-                            ]
-                        ),
-                    },
-                }
-            },
-        },
-    },
-}
 
 
 @router.get(
@@ -122,7 +59,6 @@ async def get_reco(
 ) -> RecoResponse:
     app_logger.info(f"Request for model: {model_name}, user_id: {user_id}")
 
-    # TODO() 1. Добавить описание возможных ответов (401, 403,, 404) в сваггер
     if token.credentials != "Team_5":
         raise BearerAccessTokenError()
     if user_id > 10**9:
@@ -131,7 +67,12 @@ async def get_reco(
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
     k_recs = request.app.state.k_recs
-    reco = list(range(k_recs))
+
+    try:
+        reco = popular_model.get_popular_reco(user_id, k_recs)
+        # reco = list(range(k_recs))
+    except TypeError:
+        reco = list(range(k_recs))
     return RecoResponse(user_id=user_id, items=reco)
 
 
