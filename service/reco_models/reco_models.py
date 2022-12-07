@@ -1,7 +1,6 @@
 import os
 import pickle
-from typing import Any, List, Optional
-import numpy
+from typing import List, Optional
 
 
 cwd = os.path.dirname(__file__)
