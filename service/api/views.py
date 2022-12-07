@@ -16,9 +16,10 @@ from service.api.responses import (
     NotFoundError,
 )
 from service.log import app_logger
-from service.reco_models.reco_models import simple_popular_model
+from service.reco_models.reco_models import simple_popular_model, KnnModel
 
 popular_model = simple_popular_model()  # type: ignore
+knn_model = KnnModel()
 
 
 class RecoResponse(BaseModel):
@@ -69,7 +70,9 @@ async def get_reco(
     k_recs = request.app.state.k_recs
 
     try:
-        reco = popular_model.get_popular_reco(user_id, k_recs)
+        reco = knn_model.predict(user_id)
+        if not reco:
+            reco = popular_model.get_popular_reco(user_id, k_recs)
         # reco = list(range(k_recs))
     except TypeError:
         reco = list(range(k_recs))
