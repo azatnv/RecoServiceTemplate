@@ -17,9 +17,8 @@ CONTAINER_NAME := reco_service
 # Prepare
 
 .venv:
-	python venv .venv
-	source $(BIN)/activate
-	pip install -r requirements.txt
+	poetry install --no-root
+	poetry check
 
 setup: .venv
 
@@ -71,7 +70,7 @@ build:
 	docker build . -t $(IMAGE_NAME)
 
 run: build
-	docker run -p 8080:8080 -name $(CONTAINER_NAME) $(IMAGE_NAME)
+	docker run -p 8080:8080 --name $(CONTAINER_NAME) $(IMAGE_NAME)
 
 # All
 
