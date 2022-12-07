@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import Any, List
+from typing import List, Dict
 
 cwd = os.path.dirname(__file__)
 
@@ -8,33 +8,25 @@ cwd = os.path.dirname(__file__)
 class simple_popular_model():
 
     def __init__(self):
-        self.dataset = pickle.load(
+        self.users_dictionary = pickle.load(
             open(
                 os.path.join(
                     cwd,
-                    'popular_dataset.pickle'
+                    'users_dictionary.pickle'
                 ),
                 'rb'
             )
         )
-        self.model: Any = pickle.load(
+        self.popular_dictionary: Dict = pickle.load(
             open(
                 os.path.join(
                     cwd,
-                    'popular_model.pickle'
+                    'popular_dictionary.pickle'
                 ),
                 'rb'
             )
         )
-        self.top_popular_list: List = pickle.load(
-            open(
-                os.path.join(
-                    cwd,
-                    'top_popular_list.pickle',
-                ),
-                'rb'
-            )
-        )
+     
 
     def get_popular_reco(
         self,
@@ -42,17 +34,12 @@ class simple_popular_model():
         k_recs: int
     ) -> List:
         # проверяю юзер в датасете или нет
-        if user_id in self.dataset.user_id_map.external_ids:
-            recos = list(
-                self.model.recommend(
-                    [user_id],
-                    dataset=self.dataset,
-                    k=k_recs,
-                    filter_viewed=False
-                )['item_id'].values
-            )
-        else:
-            recos = list(
-                self.top_popular_list[:k_recs]
-            )
-        return recos
+        
+        try:
+            category = self.users_dictionary[user_id]
+            reco = self.popular_dictionary[category][:k_recs]
+        except KeyError:
+            # если юзер не принадлежит никакой категории, рекомендуем
+            # ему популярное в среднем
+            reco = self.popular_dictionary['popular_for_all'][:k_recs]
+        return reco
