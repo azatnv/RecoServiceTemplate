@@ -1,7 +1,7 @@
 import os
 import pickle
-from typing import List, Optional
 
+from typing import Dict, List, Optional
 
 cwd = os.path.dirname(__file__)
 
@@ -9,11 +9,20 @@ cwd = os.path.dirname(__file__)
 class simple_popular_model():
 
     def __init__(self):
-        self.top_popular_list: List = pickle.load(
+        self.users_dictionary = pickle.load(
             open(
                 os.path.join(
                     cwd,
-                    'top_popular_list.pickle',
+                    'users_dictionary.pickle'
+                ),
+                'rb'
+            )
+        )
+        self.popular_dictionary: Dict = pickle.load(
+            open(
+                os.path.join(
+                    cwd,
+                    'popular_dictionary.pickle'
                 ),
                 'rb'
             )
@@ -24,8 +33,16 @@ class simple_popular_model():
         user_id: int,
         k_recs: int
     ) -> List:
-        return list(self.top_popular_list[:k_recs])
-
+        # проверяю юзер в датасете или нет
+        try:
+            category = self.users_dictionary[user_id]
+            reco = self.popular_dictionary[category][:k_recs]
+        except KeyError:
+            # если юзер не принадлежит никакой категории, рекомендуем
+            # ему популярное в среднем
+            reco = self.popular_dictionary['popular_for_all'][:k_recs]
+        return reco
+        
 
 class KnnModel:
     def __init__(self, path: str = f"{cwd}/hot_reco_dict.pickle"):
