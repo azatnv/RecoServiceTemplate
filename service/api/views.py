@@ -25,7 +25,7 @@ from service.reco_models.reco_models import (
 
 popular_model = simple_popular_model()  # type: ignore
 offline_knn_model = OfflineKnnModel("hot_reco_dict.pickle")
-online_knn_model = OnlineKnnModel("best_hot_bm25_watched_pct.dill")
+online_knn_model = OnlineKnnModel("light_model_2.dill")
 
 
 class RecoResponse(BaseModel):
@@ -79,8 +79,11 @@ async def get_reco(
         try:
             reco = offline_knn_model.predict(user_id) if model_name == "knn" \
                 else online_knn_model.predict(user_id)
+            print("ASD", reco)
             if not reco:
+                print("Here")
                 reco = popular_model.get_popular_reco(user_id, k_recs)
+                print(f"Popular {reco}")
         except TypeError:
             reco = list(range(k_recs))
     else:

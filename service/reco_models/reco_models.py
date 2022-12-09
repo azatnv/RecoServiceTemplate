@@ -1,10 +1,17 @@
 import os
-import dill
 import pickle
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
+import dill
+#from service.rco_models.userknn import UserKnn_light
 
-import pandas as pd
+
+from pandas import DataFrame
+from scipy.sparse import coo_matrix
+from numpy import log, ones, float32, array
+from collections import Counter
+from implicit.nearest_neighbours import ItemItemRecommender
+from typing import Dict, Optional
 
 
 cwd = os.path.dirname(__file__)
@@ -68,11 +75,11 @@ class OfflineKnnModel(KnnModel):
 class OnlineKnnModel(KnnModel):
 
     def __init__(self, name: str):
+        #super().__init__(name) #pickle
         with open(f"{cwd}/{name}", "rb") as f:
             self.model = dill.load(f)
 
     def predict(self, user_id: int) -> Optional[List[int]]:
-        recs = self.model.\
-            predict(pd.DataFrame(data={"user_id": [user_id]}))["item_id"]\
-            .tolist()
-        return recs
+        x = self.model.predict(user_id)
+        print(x) # Тут выходит [nan]
+        return x

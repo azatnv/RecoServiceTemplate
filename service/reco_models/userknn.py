@@ -7,7 +7,7 @@ from implicit.nearest_neighbours import ItemItemRecommender
 from typing import Optional
 
 
-class UserKnn:
+class UserKnn_light:
     """Class for fit-perdict UserKNN model
        based on ItemKNN model from implicit.nearest_neighbours
     """
@@ -58,69 +58,64 @@ class UserKnn:
             lambda x: self.idf(self.n, x))
         self.item_idf = item_idf
 
-    def fit(self, train: pd.DataFrame, weight_col: Optional[str] = None):
+    def fit(self, train: pd.DataFrame, weight_col: Optional[
+        str] = None):  # добавил аргумент weight_col = None, теперь можно выбирать что есть вес
         self.user_knn = self.model
         self.get_mappings(train)
+        # 1) Тут не был задан параметр weight_col=
         self.weights_matrix = self.get_matrix(train, weight_col=weight_col,
                                               users_mapping=self.users_mapping,
                                               items_mapping=self.items_mapping)
 
         self.n = train.shape[0]
 
+        # 2) (не получилось) Можно добавить bm25 или придумать свой способ переранжирования
         self._count_item_idf(train)
 
         self.user_knn.fit(self.weights_matrix)
         self.is_fitted = True
 
-    def _generate_recs_mapper(self, model: ItemItemRecommender,
-                              user_mapping: Dict[int, int],
-                              user_inv_mapping: Dict[int, int], N: int):
-        def _recs_mapper(user):
-            user_id = user_mapping[user]
-            recs = model.similar_items(user_id, N=N)
-            return [user_inv_mapping[user] for user, _ in recs], [sim for
-                                                                  _, sim in
-                                                                  recs]
+    def _get_similar_users(self, user_id: int, model: ItemItemRecommender,
+                           user_mapping: Dict[int, int],
+                           user_inv_mapping: Dict[int, int],
+                           N_users: int) -> np.array:
+        internal_user_id = user_mapping[user_id]
+        sim_users = np.array(model.similar_items(internal_user_id, N=N_users))[
+                    :, 0]
+        return sim_users
 
-        return _recs_mapper
-
-    def predict(self, user_id: pd.DataFrame, N_recs: int = 10):
+    def predict(self, user_id: int, N_recs: int = 10):
 
         if not self.is_fitted:
             raise ValueError("Please call fit before predict")
 
-        mapper = self._generate_recs_mapper(
+        sim_users = self._get_similar_users(
+            user_id=user_id,
             model=self.user_knn,
             user_mapping=self.users_mapping,
             user_inv_mapping=self.users_inv_mapping,
-            N=self.N_users
+            N_users=self.N_users
         )
 
-        recs = pd.DataFrame({'user_id': user_id["user_id"].unique()})
-        recs['sim_user_id'], recs['sim'] = zip(*recs['user_id'].map(mapper))
-        recs = recs.set_index('user_id').apply(pd.Series.explode).reset_index()
-        recs["sim_user_id"] = recs["sim_user_id"].astype(np.uint32)
-        recs["sim"] = recs["sim"].astype(np.float32)
-
-        recs = recs[recs["user_id"] != recs["sim_user_id"]]
+        recs = pd.DataFrame({
+            "user_id": user_id,
+            "sim_user_id": sim_users,
+        })
 
         recs = recs.merge(self.watched, left_on=['sim_user_id'],
                           right_on=['user_id'], how='left') \
             .drop(["sim_user_id"], axis=1) \
             .explode('item_id') \
-            .sort_values(['user_id', 'sim'], ascending=False) \
-            .drop_duplicates(['user_id', 'item_id'], keep='first') \
+            .drop_duplicates(['item_id'], keep='first') \
             .merge(self.watched, left_on=["user_id"], right_on=["user_id"],
                    how="left")
 
+        # исключаем уже просмотренное тестовым пользователем из рекомендаций
         recs = recs[
             recs.apply(lambda x: x["item_id_x"] not in x["item_id_y"], axis=1)] \
-            .rename(columns={"item_id_x": "item_id"}) \
-            .merge(self.item_idf, left_on='item_id', right_on='index',
+            .drop(["item_id_y"], axis=1) \
+            .merge(self.item_idf, left_on='item_id_x', right_on='index',
                    how='left')
 
-        recs['score'] = recs['sim'] * recs['idf']
-        recs.drop(["sim", "idf"], axis=1, inplace=True)
-        recs = recs.sort_values(['user_id', 'score'], ascending=False)
-        recs['rank'] = recs.groupby('user_id').cumcount() + 1
-        return recs[recs['rank'] <= N_recs][['user_id', 'item_id', 'rank']]
+        recs = recs.sort_values(['idf'], ascending=True)
+        return recs["item_id_x"][:N_recs].tolist()
