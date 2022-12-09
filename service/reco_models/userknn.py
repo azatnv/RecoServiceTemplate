@@ -1,16 +1,20 @@
-import pandas as pd
-import numpy as np
-import scipy as sp
-from typing import Dict
+from pandas import DataFrame
+from scipy.sparse import coo_matrix
+from numpy import log, ones, float32, array
 from collections import Counter
 from implicit.nearest_neighbours import ItemItemRecommender
-from typing import Optional
-
+from typing import Dict, Optional
 
 class UserKnn_light:
     """Class for fit-perdict UserKNN model
        based on ItemKNN model from implicit.nearest_neighbours
     """
+    from pandas import DataFrame
+    from scipy.sparse import coo_matrix
+    from numpy import log, ones, float32, array
+    from collections import Counter
+    from implicit.nearest_neighbours import ItemItemRecommender
+    from typing import Dict, Optional
 
     def __init__(self, model: ItemItemRecommender, N_users: int = 50):
         self.N_users = N_users
@@ -24,19 +28,21 @@ class UserKnn_light:
         self.items_inv_mapping = dict(enumerate(train['item_id'].unique()))
         self.items_mapping = {v: k for k, v in self.items_inv_mapping.items()}
 
-    def get_matrix(self, df: pd.DataFrame,
+    def get_matrix(self, df: DataFrame,
                    user_col: str = 'user_id',
                    item_col: str = 'item_id',
                    weight_col: str = None,
                    users_mapping: Dict[int, int] = None,
                    items_mapping: Dict[int, int] = None):
+        from scipy.sparse import coo_matrix
+        from numpy import ones, float32
 
         if weight_col:
-            weights = df[weight_col].astype(np.float32)
+            weights = df[weight_col].astype(float32)
         else:
-            weights = np.ones(len(df), dtype=np.float32)
+            weights = ones(len(df), dtype=float32)
 
-        interaction_matrix = sp.sparse.coo_matrix((
+        interaction_matrix = coo_matrix((
             weights,
             (
                 df[user_col].map(self.users_mapping.get),
@@ -48,17 +54,20 @@ class UserKnn_light:
         return interaction_matrix
 
     def idf(self, n: int, x: float):
-        return np.log((1 + n) / (1 + x) + 1)
+        from numpy import log
+        return log((1 + n) / (1 + x) + 1)
 
-    def _count_item_idf(self, df: pd.DataFrame):
+    def _count_item_idf(self, df: DataFrame):
+        from collections import Counter
+        from pandas import DataFrame
         item_cnt = Counter(df['item_id'].values)
-        item_idf = pd.DataFrame.from_dict(item_cnt, orient='index',
-                                          columns=['doc_freq']).reset_index()
+        item_idf = DataFrame.from_dict(item_cnt, orient='index',
+                                       columns=['doc_freq']).reset_index()
         item_idf['idf'] = item_idf['doc_freq'].apply(
             lambda x: self.idf(self.n, x))
         self.item_idf = item_idf
 
-    def fit(self, train: pd.DataFrame, weight_col: Optional[
+    def fit(self, train: DataFrame, weight_col: Optional[
         str] = None):  # добавил аргумент weight_col = None, теперь можно выбирать что есть вес
         self.user_knn = self.model
         self.get_mappings(train)
@@ -78,16 +87,18 @@ class UserKnn_light:
     def _get_similar_users(self, user_id: int, model: ItemItemRecommender,
                            user_mapping: Dict[int, int],
                            user_inv_mapping: Dict[int, int],
-                           N_users: int) -> np.array:
+                           N_users: int) -> array:
+        from numpy import array
         internal_user_id = user_mapping[user_id]
-        sim_users = np.array(model.similar_items(internal_user_id, N=N_users))[
-                    :, 0]
+        sim_users = array(model.similar_items(internal_user_id, N=N_users))[:,
+                    0]
         return sim_users
 
     def predict(self, user_id: int, N_recs: int = 10):
-
         if not self.is_fitted:
             raise ValueError("Please call fit before predict")
+
+        from pandas import DataFrame
 
         sim_users = self._get_similar_users(
             user_id=user_id,
@@ -97,7 +108,7 @@ class UserKnn_light:
             N_users=self.N_users
         )
 
-        recs = pd.DataFrame({
+        recs = DataFrame({
             "user_id": user_id,
             "sim_user_id": sim_users,
         })

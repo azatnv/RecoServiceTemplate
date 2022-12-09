@@ -79,11 +79,8 @@ async def get_reco(
         try:
             reco = offline_knn_model.predict(user_id) if model_name == "knn" \
                 else online_knn_model.predict(user_id)
-            print("ASD", reco)
             if not reco:
-                print("Here")
                 reco = popular_model.get_popular_reco(user_id, k_recs)
-                print(f"Popular {reco}")
         except TypeError:
             reco = list(range(k_recs))
     else:
