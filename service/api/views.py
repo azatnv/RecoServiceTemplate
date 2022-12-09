@@ -17,13 +17,12 @@ from service.api.responses import (
 )
 from service.log import app_logger
 from service.reco_models.reco_models import (
-    OnlineKnnModel,
     OfflineKnnModel,
-    simple_popular_model,
+    OnlineKnnModel,
+    SimplePopularModel,
 )
 
-
-popular_model = simple_popular_model()  # type: ignore
+popular_model = SimplePopularModel()  # type: ignore
 offline_knn_model = OfflineKnnModel("hot_reco_dict.pickle")
 online_knn_model = OnlineKnnModel("user-knn.dill")
 
@@ -75,7 +74,7 @@ async def get_reco(
 
     if model_name == "test_model":
         reco = list(range(k_recs))
-    elif model_name == "knn" or model_name == "online_knn":
+    elif model_name in ("knn", "online_knn"):
         try:
             reco = offline_knn_model.predict(user_id) if model_name == "knn" \
                 else online_knn_model.predict(user_id)

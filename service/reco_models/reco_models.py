@@ -1,21 +1,14 @@
 import os
 import pickle
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import List, Optional
+
 import dill
-
-from pandas import DataFrame
-from scipy.sparse import coo_matrix
-from numpy import log, ones, float32, array
-from collections import Counter
-from implicit.nearest_neighbours import ItemItemRecommender
-from typing import Dict, Optional
-
 
 cwd = os.path.dirname(__file__)
 
 
-class simple_popular_model():
+class SimplePopularModel:
 
     def __init__(self):
         self.users_dictionary = pickle.load(
@@ -27,7 +20,7 @@ class simple_popular_model():
                 'rb'
             )
         )
-        self.popular_dictionary: Dict = pickle.load(
+        self.popular_dictionary = pickle.load(
             open(
                 os.path.join(
                     cwd,
@@ -41,7 +34,7 @@ class simple_popular_model():
         self,
         user_id: int,
         k_recs: int
-    ) -> List:
+    ) -> List[int]:
         # проверяю юзер в датасете или нет
         try:
             category = self.users_dictionary[user_id]
