@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 import dill
 
-
 from pandas import DataFrame
 from scipy.sparse import coo_matrix
 from numpy import log, ones, float32, array
@@ -57,7 +56,7 @@ class simple_popular_model():
 class KnnModel(ABC):
     def __init__(self, name: str):
         with open(f"{cwd}/{name}", "rb") as f:
-            self.model = pickle.load(f)
+            self.model = dill.load(f)
 
     @abstractmethod
     def predict(self, user_id: int) -> Optional[List[int]]:
@@ -72,13 +71,5 @@ class OfflineKnnModel(KnnModel):
 
 
 class OnlineKnnModel(KnnModel):
-
-    def __init__(self, name: str):
-        #super().__init__(name) #pickle
-        with open(f"{cwd}/{name}", "rb") as f:
-            self.model = dill.load(f)
-
     def predict(self, user_id: int) -> Optional[List[int]]:
-        x = self.model.predict(user_id)
-        print(x) # Тут выходит [nan]
-        return x
+        return self.model.predict(user_id)

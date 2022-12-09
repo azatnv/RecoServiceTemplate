@@ -25,7 +25,7 @@ from service.reco_models.reco_models import (
 
 popular_model = simple_popular_model()  # type: ignore
 offline_knn_model = OfflineKnnModel("hot_reco_dict.pickle")
-online_knn_model = OnlineKnnModel("light_model_2.dill")
+online_knn_model = OnlineKnnModel("user-knn.dill")
 
 
 class RecoResponse(BaseModel):
