@@ -3,7 +3,6 @@ import pickle
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 import dill
-#from service.rco_models.userknn import UserKnn_light
 
 
 from pandas import DataFrame
