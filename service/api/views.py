@@ -16,10 +16,16 @@ from service.api.responses import (
     NotFoundError,
 )
 from service.log import app_logger
-from service.reco_models.reco_models import KnnModel, simple_popular_model
+from service.reco_models.reco_models import (
+    OnlineKnnModel,
+    OfflineKnnModel,
+    simple_popular_model,
+)
+
 
 popular_model = simple_popular_model()  # type: ignore
-knn_model = KnnModel()
+offline_knn_model = OfflineKnnModel("hot_reco_dict.pickle")
+online_knn_model = OnlineKnnModel("best_hot_bm25_watched_pct.dill")
 
 
 class RecoResponse(BaseModel):
@@ -69,9 +75,10 @@ async def get_reco(
 
     if model_name == "test_model":
         reco = list(range(k_recs))
-    elif model_name == "knn":
+    elif model_name == "knn" or model_name == "online_knn":
         try:
-            reco = knn_model.predict(user_id)
+            reco = offline_knn_model.predict(user_id) if model_name == "knn" \
+                else online_knn_model.predict(user_id)
             if not reco:
                 reco = popular_model.get_popular_reco(user_id, k_recs)
         except TypeError:

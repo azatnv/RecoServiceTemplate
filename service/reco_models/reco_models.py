@@ -1,6 +1,11 @@
 import os
+import dill
 import pickle
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
+
+import pandas as pd
+
 
 cwd = os.path.dirname(__file__)
 
@@ -43,12 +48,31 @@ class simple_popular_model():
         return reco
 
 
-class KnnModel:
-    def __init__(self, path: str = f"{cwd}/hot_reco_dict.pickle"):
-        with open(path, "rb") as f:
+class KnnModel(ABC):
+    def __init__(self, name: str):
+        with open(f"{cwd}/{name}", "rb") as f:
             self.model = pickle.load(f)
 
+    @abstractmethod
+    def predict(self, user_id: int) -> Optional[List[int]]:
+        pass
+
+
+class OfflineKnnModel(KnnModel):
     def predict(self, user_id: int) -> Optional[List[int]]:
         if user_id in self.model.keys():
             return self.model[user_id]
         return None
+
+
+class OnlineKnnModel(KnnModel):
+
+    def __init__(self, name: str):
+        with open(f"{cwd}/{name}", "rb") as f:
+            self.model = dill.load(f)
+
+    def predict(self, user_id: int) -> Optional[List[int]]:
+        recs = self.model.\
+            predict(pd.DataFrame(data={"user_id": [user_id]}))["item_id"]\
+            .tolist()
+        return recs
