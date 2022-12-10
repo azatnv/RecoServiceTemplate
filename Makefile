@@ -21,6 +21,7 @@ CONTAINER_NAME := reco_service
 	poetry check
 
 setup: .venv
+	pip install implicit==0.4.4
 
 
 # Clean

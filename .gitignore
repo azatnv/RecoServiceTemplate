@@ -4,6 +4,7 @@
 
 # Mac/OSX
 .DS_Store
+__MACOSX
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -14,6 +15,8 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+kion_train
+kion_train.zip
 develop-eggs/
 dist/
 downloads/
@@ -56,6 +59,7 @@ ipython_config.py
 
 # Environments
 .env
+.notebooks
 .venv
 env/
 venv/
