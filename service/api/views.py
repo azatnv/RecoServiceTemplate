@@ -5,6 +5,12 @@ from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
+from config.configuration import (
+    OFFLINE_KNN_MODEL_PATH,
+    ONLINE_KNN_MODEL_PATH,
+    POPULAR_MODEL_RECS,
+    POPULAR_MODEL_USERS,
+)
 from service.api.exceptions import (
     BearerAccessTokenError,
     ModelNotFoundError,
@@ -21,14 +27,11 @@ from service.reco_models.reco_models import (
     OnlineKnnModel,
     SimplePopularModel,
 )
-from config.configuration import (
+
+popular_model = SimplePopularModel(
     POPULAR_MODEL_USERS,
     POPULAR_MODEL_RECS,
-    ONLINE_KNN_MODEL_PATH,
-    OFFLINE_KNN_MODEL_PATH
 )
-
-popular_model = SimplePopularModel(POPULAR_MODEL_USERS, POPULAR_MODEL_RECS)  # type: ignore
 offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
 online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
 

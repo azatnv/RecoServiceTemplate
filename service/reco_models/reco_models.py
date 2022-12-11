@@ -1,7 +1,8 @@
-import dill
 import pickle
 from abc import ABC, abstractmethod
 from typing import List, Optional
+
+import dill
 
 
 class SimplePopularModel:
