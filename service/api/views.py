@@ -21,12 +21,16 @@ from service.reco_models.reco_models import (
     OnlineKnnModel,
     SimplePopularModel,
 )
-
-popular_model = SimplePopularModel()  # type: ignore
-offline_knn_model = OfflineKnnModel(
-    "offline-dictionary-with-hot-knn-recs.dill"
+from config.configuration import (
+    POPULAR_MODEL_USERS,
+    POPULAR_MODEL_RECS,
+    ONLINE_KNN_MODEL_PATH,
+    OFFLINE_KNN_MODEL_PATH
 )
-online_knn_model = OnlineKnnModel("user-knn.dill")
+
+popular_model = SimplePopularModel(POPULAR_MODEL_USERS, POPULAR_MODEL_RECS)  # type: ignore
+offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
+online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
 
 
 class RecoResponse(BaseModel):

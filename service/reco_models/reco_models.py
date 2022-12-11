@@ -1,34 +1,13 @@
-import os
+import dill
 import pickle
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-import dill
-
-cwd = os.path.dirname(__file__)
-
 
 class SimplePopularModel:
-
-    def __init__(self):
-        self.users_dictionary = pickle.load(
-            open(
-                os.path.join(
-                    cwd,
-                    'users_dictionary.pickle'
-                ),
-                'rb'
-            )
-        )
-        self.popular_dictionary = pickle.load(
-            open(
-                os.path.join(
-                    cwd,
-                    'popular_dictionary.pickle'
-                ),
-                'rb'
-            )
-        )
+    def __init__(self, users_path: str, recs_path: str):
+        self.users_dictionary = pickle.load(open(users_path, 'rb'))
+        self.popular_dictionary = pickle.load(open(recs_path, 'rb'))
 
     def get_popular_reco(
         self,
@@ -48,7 +27,7 @@ class SimplePopularModel:
 
 class KnnModel(ABC):
     def __init__(self, name: str):
-        with open(f"{cwd}/{name}", "rb") as f:
+        with open(f"{name}", "rb") as f:
             self.model = dill.load(f)
 
     @abstractmethod
