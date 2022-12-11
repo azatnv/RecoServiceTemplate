@@ -23,7 +23,9 @@ from service.reco_models.reco_models import (
 )
 
 popular_model = SimplePopularModel()  # type: ignore
-offline_knn_model = OfflineKnnModel("hot_reco_dict.pickle")
+offline_knn_model = OfflineKnnModel(
+    "offline-dictionary-with-hot-knn-recs.dill"
+)
 online_knn_model = OnlineKnnModel("user-knn.dill")
 
 
