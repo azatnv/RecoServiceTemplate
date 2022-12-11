@@ -9,11 +9,7 @@ class SimplePopularModel:
         self.users_dictionary = pickle.load(open(users_path, 'rb'))
         self.popular_dictionary = pickle.load(open(recs_path, 'rb'))
 
-    def get_popular_reco(
-        self,
-        user_id: int,
-        k_recs: int
-    ) -> List[int]:
+    def predict(self, user_id: int, k_recs: int) -> List[int]:
         # проверяю юзер в датасете или нет
         try:
             category = self.users_dictionary[user_id]
