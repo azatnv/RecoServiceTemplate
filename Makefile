@@ -21,8 +21,10 @@ CONTAINER_NAME := reco_service
 	poetry check
 
 setup: .venv
-	pip install implicit==0.4.4
+	pip install implicit==0.4.4 lightfm==1.16
 
+script:
+	./config/load_light_fm.sh
 
 # Clean
 

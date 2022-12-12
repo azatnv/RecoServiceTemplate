@@ -10,6 +10,11 @@ from config.configuration import (
     ONLINE_KNN_MODEL_PATH,
     POPULAR_MODEL_RECS,
     POPULAR_MODEL_USERS,
+    USER_MAPPING, 
+    ITEM_MAPPING, 
+    USERS_FEATURES,
+    UNIQUE_FEATURES,
+    LIGHT_FM,
 )
 from service.api.exceptions import (
     BearerAccessTokenError,
@@ -26,6 +31,7 @@ from service.reco_models.reco_models import (
     OfflineKnnModel,
     OnlineKnnModel,
     SimplePopularModel,
+    FactorizationMachine,
 )
 
 popular_model = SimplePopularModel(
@@ -34,6 +40,11 @@ popular_model = SimplePopularModel(
 )
 offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
 online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
+online_light_fm = FactorizationMachine(name=LIGHT_FM, 
+                                       USER_MAPPING=USER_MAPPING,
+                                       ITEM_MAPPING=ITEM_MAPPING, 
+                                       USERS_FEATURES=USERS_FEATURES,
+                                       UNIQUE_FEATURES=UNIQUE_FEATURES)
 
 
 class RecoResponse(BaseModel):
@@ -87,6 +98,13 @@ async def get_reco(
         try:
             reco = offline_knn_model.predict(user_id) if model_name == "knn" \
                 else online_knn_model.predict(user_id)
+            if not reco:
+                reco = popular_model.predict(user_id, k_recs)
+        except TypeError:
+            reco = list(range(k_recs))
+    elif model_name == "light_fm":
+        try:
+            reco = online_light_fm.predict(user_id) 
             if not reco:
                 reco = popular_model.predict(user_id, k_recs)
         except TypeError:
