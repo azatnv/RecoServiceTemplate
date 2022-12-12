@@ -1,10 +1,10 @@
 import pickle
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
-import numpy as np
-from scipy import sparse
 
 import dill
+import numpy as np
+from scipy import sparse
 
 
 class SimplePopularModel:
@@ -96,6 +96,7 @@ class FactorizationMachine(Model):
         if user_id in self.user_mapping:
             return self._get_hot_reco(user_id=user_id)
         else:
-            return self._get_cold_reco(user_id=user_id)
+            return None
+            # return self._get_cold_reco(user_id=user_id)
 
 

@@ -6,15 +6,15 @@ from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
 from config.configuration import (
+    ITEM_MAPPING,
+    LIGHT_FM,
     OFFLINE_KNN_MODEL_PATH,
     ONLINE_KNN_MODEL_PATH,
     POPULAR_MODEL_RECS,
     POPULAR_MODEL_USERS,
-    USER_MAPPING, 
-    ITEM_MAPPING, 
-    USERS_FEATURES,
     UNIQUE_FEATURES,
-    LIGHT_FM,
+    USERS_FEATURES,
+    USER_MAPPING,
 )
 from service.api.exceptions import (
     BearerAccessTokenError,
@@ -28,10 +28,10 @@ from service.api.responses import (
 )
 from service.log import app_logger
 from service.reco_models.reco_models import (
+    FactorizationMachine,
     OfflineKnnModel,
     OnlineKnnModel,
     SimplePopularModel,
-    FactorizationMachine,
 )
 
 popular_model = SimplePopularModel(
