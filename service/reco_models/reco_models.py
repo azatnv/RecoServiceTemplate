@@ -71,7 +71,10 @@ class FactorizationMachine(Model):
         recs = [self.item_mapping[reco] for reco in recs]
         return recs
     
-    def _get_cold_reco(self, item_mapping, user_id) -> Optional[List[int]]:
+    def _get_cold_reco(self, user_id) -> Optional[List[int]]:
+        
+        if user_id not in self.users_features:
+            return None
         user_feature = list(self.users_features[user_id].values())
         
         # If no features then
@@ -85,7 +88,7 @@ class FactorizationMachine(Model):
         
         idxs = np.argsort(cold_scores)[::-1]
         recs = self.items_internal_ids[idxs][:10]
-        recs = [item_mapping[reco] for reco in recs]
+        recs = [self.item_mapping[reco] for reco in recs]
         return recs
     
     def predict(self, user_id: int) -> Optional[List[int]]:
@@ -93,6 +96,6 @@ class FactorizationMachine(Model):
         if user_id in self.user_mapping:
             return self._get_hot_reco(user_id=user_id)
         else:
-            self._get_cold_reco(user_id=user_id)
+            return self._get_cold_reco(user_id=user_id)
 
 

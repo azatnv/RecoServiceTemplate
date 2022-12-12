@@ -107,6 +107,7 @@ async def get_reco(
             reco = online_light_fm.predict(user_id) 
             if not reco:
                 reco = popular_model.predict(user_id, k_recs)
+                
         except TypeError:
             reco = list(range(k_recs))
     else:

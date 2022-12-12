@@ -35,6 +35,8 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Local files
+models/light_fm.dill
 
 # Unit test / coverage reports
 htmlcov/
