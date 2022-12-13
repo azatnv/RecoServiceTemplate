@@ -207,5 +207,7 @@ class ANNLightFM:
                 unseen_items = np.append(
                     unseen_items, popular_items[:num_lost_items]
                 )
+                if len(unseen_items) != 0:
+                    return popular_items[:self.K]
             return unseen_items.tolist()
         return None
