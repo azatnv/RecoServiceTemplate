@@ -40,11 +40,13 @@ popular_model = SimplePopularModel(
 )
 offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
 online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
-online_light_fm = FactorizationMachine(name=LIGHT_FM, 
-                                       USER_MAPPING=USER_MAPPING,
-                                       ITEM_MAPPING=ITEM_MAPPING, 
-                                       USERS_FEATURES=USERS_FEATURES,
-                                       UNIQUE_FEATURES=UNIQUE_FEATURES)
+online_light_fm = FactorizationMachine(
+    name=LIGHT_FM,
+    USER_MAPPING=USER_MAPPING,
+    ITEM_MAPPING=ITEM_MAPPING,
+    USERS_FEATURES=USERS_FEATURES,
+    UNIQUE_FEATURES=UNIQUE_FEATURES,
+)
 
 
 class RecoResponse(BaseModel):
@@ -57,9 +59,9 @@ bearer_scheme = HTTPBearer()
 router = APIRouter()
 
 responses = {
-    '401': AuthorizationResponse().get_response(),   # type: ignore
-    '403': ForbiddenResponse().get_response(),       # type: ignore
-    '404': NotFoundError().get_response()            # type: ignore
+    "401": AuthorizationResponse().get_response(),  # type: ignore
+    "403": ForbiddenResponse().get_response(),  # type: ignore
+    "404": NotFoundError().get_response(),  # type: ignore
 }
 
 
@@ -95,23 +97,18 @@ async def get_reco(
     if model_name == "test_model":
         reco = list(range(k_recs))
     elif model_name in ("knn", "online_knn"):
-        try:
-            reco = offline_knn_model.predict(user_id) if model_name == "knn" \
-                else online_knn_model.predict(user_id)
-            if not reco:
-                reco = popular_model.predict(user_id, k_recs)
-        except TypeError:
-            reco = list(range(k_recs))
+        reco = (
+            offline_knn_model.predict(user_id)
+            if model_name == "knn"
+            else online_knn_model.predict(user_id)
+        )
     elif model_name == "light_fm_2":
-        try:
-            reco = online_light_fm.predict(user_id) 
-            if not reco:
-                reco = popular_model.predict(user_id, k_recs)
-                
-        except TypeError:
-            reco = list(range(k_recs))
+        reco = online_light_fm.predict(user_id)
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
+
+    if not reco:
+        reco = popular_model.predict(user_id, k_recs)
 
     return RecoResponse(user_id=user_id, items=reco)
 

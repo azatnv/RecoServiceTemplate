@@ -4,13 +4,10 @@ from service.models import Error, ErrorResponse
 
 
 class BasicErrorResponse:
-
     def __init__(self) -> None:
         self.model = ErrorResponse
         self.description: str = "None"
-        self.content: Dict[Any, Any] = {
-            "application/json": {}
-        }
+        self.content: Dict[Any, Any] = {"application/json": {}}
 
     def get_response(self) -> Dict[Any, Any]:
         "Return response of the Error"
@@ -23,7 +20,6 @@ class BasicErrorResponse:
 
 
 class AuthorizationResponse(BasicErrorResponse):
-
     def __init__(self):
         super().__init__()
         self.description: str = "Error: Unauthorized"
@@ -35,7 +31,7 @@ class AuthorizationResponse(BasicErrorResponse):
                             error_key="incorrect_bearer_key",
                             error_message=(
                                 "Authorization failure due to incorrect token"
-                                ),
+                            ),
                             error_loc=None,
                         )
                     ]
@@ -49,7 +45,6 @@ class AuthorizationResponse(BasicErrorResponse):
 
 
 class ForbiddenResponse(BasicErrorResponse):
-
     def __init__(self):
         super().__init__()
         self.description: str = "Error: Forbidden"
@@ -69,7 +64,6 @@ class ForbiddenResponse(BasicErrorResponse):
 
 
 class NotFoundError(BasicErrorResponse):
-
     def __init__(self):
         super().__init__()
         self.description: str = "Error: Not Found"
