@@ -6,6 +6,7 @@ from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
 from config.configuration import (
+    FEATURES_FOR_COLD,
     ITEM_MAPPING,
     LIGHT_FM,
     OFFLINE_KNN_MODEL_PATH,
@@ -13,7 +14,6 @@ from config.configuration import (
     POPULAR_MODEL_RECS,
     POPULAR_MODEL_USERS,
     UNIQUE_FEATURES,
-    USERS_FEATURES,
     USER_MAPPING,
 )
 from service.api.exceptions import (
@@ -28,8 +28,8 @@ from service.api.responses import (
 )
 from service.log import app_logger
 from service.reco_models.reco_models import (
-    FactorizationMachine,
     OfflineKnnModel,
+    OnlineFM,
     OnlineKnnModel,
     SimplePopularModel,
 )
@@ -40,11 +40,22 @@ popular_model = SimplePopularModel(
 )
 offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
 online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
-online_light_fm = FactorizationMachine(
+# Use LightFM model to predict recos for cold with features,
+# popular for others
+online_fm_part_popular = OnlineFM(
     name=LIGHT_FM,
     USER_MAPPING=USER_MAPPING,
     ITEM_MAPPING=ITEM_MAPPING,
-    USERS_FEATURES=USERS_FEATURES,
+    FEATURES_FOR_COLD=FEATURES_FOR_COLD,
+    UNIQUE_FEATURES=UNIQUE_FEATURES,
+)
+#  Use popular model to predict recos for all cold
+online_fm_all_popular = OnlineFM(
+    name=LIGHT_FM,
+    cold_with_fm=False,
+    USER_MAPPING=USER_MAPPING,
+    ITEM_MAPPING=ITEM_MAPPING,
+    FEATURES_FOR_COLD=FEATURES_FOR_COLD,
     UNIQUE_FEATURES=UNIQUE_FEATURES,
 )
 
@@ -102,8 +113,12 @@ async def get_reco(
             if model_name == "knn"
             else online_knn_model.predict(user_id)
         )
-    elif model_name == "light_fm_2":
-        reco = online_light_fm.predict(user_id)
+    elif model_name in ("light_fm_1", "light_fm_2"):
+        reco = (
+            online_fm_all_popular.predict(user_id, k_recs)
+            if model_name == "light_fm_1"
+            else online_fm_part_popular.predict(user_id, k_recs)
+        )
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
