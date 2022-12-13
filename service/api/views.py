@@ -6,6 +6,7 @@ from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
 from config.configuration import (
+    ANN_PATHS,
     FEATURES_FOR_COLD,
     ITEM_MAPPING,
     LIGHT_FM,
@@ -28,6 +29,7 @@ from service.api.responses import (
 )
 from service.log import app_logger
 from service.reco_models.reco_models import (
+    ANNLightFM,
     OfflineKnnModel,
     OnlineFM,
     OnlineKnnModel,
@@ -58,6 +60,7 @@ online_fm_all_popular = OnlineFM(
     FEATURES_FOR_COLD=FEATURES_FOR_COLD,
     UNIQUE_FEATURES=UNIQUE_FEATURES,
 )
+ann_lightfm = ANNLightFM(ANN_PATHS, popular_model)
 
 
 class RecoResponse(BaseModel):
@@ -119,6 +122,8 @@ async def get_reco(
             if model_name == "light_fm_1"
             else online_fm_part_popular.predict(user_id, k_recs)
         )
+    elif model_name in ("ann_lightfm"):
+        reco = ann_lightfm.predict(user_id)
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 

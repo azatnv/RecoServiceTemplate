@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
 import dill
+import nmslib
 import numpy as np
 from lightfm import LightFM
 from numpy.typing import NDArray
@@ -145,4 +146,66 @@ class OnlineFM:
                     user_feature=user_feature, k_recs=k_recs
                 )
         # If not the case, let the popular model to make recos
+        return None
+
+
+class ANNLightFM:
+    def __init__(
+        self,
+        ann_paths: tuple[str],
+        popular_model: SimplePopularModel,
+        k: int = 10,
+    ):
+        user_m, item_inv_m, index_path, user_emb, watched_u2i = ann_paths
+        self.K = k
+        with open(user_m, "rb") as f:
+            self.user_m = dill.load(f)
+        with open(item_inv_m, "rb") as f:
+            self.item_inv_m = dill.load(f)
+
+        self.index = nmslib.init(method="hnsw", space="negdotprod")
+        self.index.loadIndex(index_path, load_data=True)
+        try:
+            with open(user_emb, "rb") as f:
+                self.user_emb = dill.load(f)
+        except FileNotFoundError:
+            print("Run `make user_emb` to load a pickled object")
+        with open(item_inv_m, "rb") as f:
+            self.item_inv_m = dill.load(f)
+        with open(watched_u2i, "rb") as f:
+            self.watched_u2i = dill.load(f)
+        self.popular_model = popular_model
+
+    def predict(self, user_id: int) -> Optional[List[int]]:
+        if user_id in self.user_m:
+            user_vector = self.user_emb[self.user_m[user_id]]
+            pr_internal_items = self.index.knnQuery(
+                vector=user_vector, k=self.K
+            )[0]
+            pr_items = [self.item_inv_m[item] for item in pr_internal_items]
+
+            # Delete already seen items
+            pr_items = np.array(pr_items, dtype="uint16")
+            already_seen_items = np.array(
+                self.watched_u2i[user_id], dtype="uint16"
+            )
+
+            unseen_items = pr_items[~np.isin(pr_items, already_seen_items)]
+            num_lost_items = self.K - unseen_items.shape[0]
+            if num_lost_items != 0:
+                popular_items = np.array(
+                    self.popular_model.predict(user_id, 2 * self.K)
+                )
+
+                popular_items = popular_items[
+                    ~np.isin(popular_items, already_seen_items)
+                ]
+                popular_items = popular_items[
+                    ~np.isin(popular_items, unseen_items)
+                ]
+
+                unseen_items = np.append(
+                    unseen_items, popular_items[:num_lost_items]
+                )
+            return unseen_items.tolist()
         return None

@@ -12,3 +12,17 @@ USER_MAPPING = "models/user_mapping.dill"
 ITEM_MAPPING = "models/item_mapping.dill"
 FEATURES_FOR_COLD = "models/features_for_cold.dill"
 UNIQUE_FEATURES = "models/unique_features.dill"
+
+ANN_user_m = "models/lightfm/reserved_user_mapping.dill"
+ANN_item_inv_m = "models/lightfm/reserved_item_inv_mapping.dill"
+ANN_index_path = "models/lightfm/items_index.hnsw"
+ANN_user_emb = "models/lightfm/user_embeddings.dill"
+ANN_watched_u2i = "models/lightfm/watched_user2items_dictionary.dill"
+
+ANN_PATHS = (
+    ANN_user_m,
+    ANN_item_inv_m,
+    ANN_index_path,
+    ANN_user_emb,
+    ANN_watched_u2i
+)

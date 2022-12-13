@@ -25,6 +25,8 @@ setup: .venv
 
 script:
 	./config/load_light_fm.sh
+user_emb:
+	./config/load_user_emb.sh
 
 # Clean
 
