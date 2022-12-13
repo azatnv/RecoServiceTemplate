@@ -1,6 +1,6 @@
 import pickle
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import dill
 import nmslib
@@ -152,7 +152,7 @@ class OnlineFM:
 class ANNLightFM:
     def __init__(
         self,
-        ann_paths: tuple[str],
+        ann_paths: Tuple[str],
         popular_model: SimplePopularModel,
         k: int = 10,
     ):
