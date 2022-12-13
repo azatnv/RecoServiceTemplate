@@ -208,6 +208,6 @@ class ANNLightFM:
                     unseen_items, popular_items[:num_lost_items]
                 )
                 if len(unseen_items) != 0:
-                    return popular_items[:self.K]
+                    return popular_items[:self.K].tolist()
             return unseen_items.tolist()
         return None
