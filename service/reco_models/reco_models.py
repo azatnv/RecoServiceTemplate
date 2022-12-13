@@ -194,7 +194,7 @@ class ANNLightFM:
             num_lost_items = self.K - unseen_items.shape[0]
             if num_lost_items != 0:
                 popular_items = np.array(
-                    self.popular_model.predict(user_id, 2 * self.K)
+                    self.popular_model.predict(user_id, 5 * self.K)
                 )
 
                 popular_items = popular_items[
