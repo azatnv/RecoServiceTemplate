@@ -85,8 +85,12 @@ class OnlineFM:
         UNIQUE_FEATURES: str,
         cold_with_fm: bool = True,
     ):
-        with open(f"{name}", "rb") as f:
-            self.model: LightFM = dill.load(f)
+        try:
+            with open(f"{name}", "rb") as f:
+                self.model: LightFM = dill.load(f)
+        except FileNotFoundError:
+            print("Run `make script` to load a pickled object")
+        
         with open(USER_MAPPING, "rb") as f:
             self.user_mapping: Dict[int, int] = dill.load(f)
         with open(ITEM_MAPPING, "rb") as f:
