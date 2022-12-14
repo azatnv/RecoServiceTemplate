@@ -177,7 +177,7 @@ class ANNLightFM:
         if user_id in self.user_m:
             user_vector = self.user_emb[self.user_m[user_id]]
             pr_internal_items = self.index.knnQuery(
-                vector=user_vector, k=self.K * 3
+                vector=user_vector, k=self.K
             )[0]
             pr_items = [self.item_inv_m[item] for item in pr_internal_items]
 
