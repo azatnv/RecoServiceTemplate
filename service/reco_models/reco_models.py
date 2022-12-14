@@ -152,29 +152,26 @@ class OnlineFM:
 class ANNLightFM:
     def __init__(
         self,
-        ann_paths: Tuple[str],
+        ann_paths: Tuple[str, str, str, str, str],
         popular_model: SimplePopularModel,
         k: int = 10,
     ):
         user_m, item_inv_m, index_path, user_emb, watched_u2i = ann_paths
         self.K = k
         with open(user_m, "rb") as f:
-            self.user_m = dill.load(f)
+            self.user_m: Dict[int, int] = dill.load(f)
         with open(item_inv_m, "rb") as f:
-            self.item_inv_m = dill.load(f)
-
+            self.item_inv_m: Dict[int, int] = dill.load(f)
         self.index = nmslib.init(method="hnsw", space="negdotprod")
         self.index.loadIndex(index_path, load_data=True)
         try:
             with open(user_emb, "rb") as f:
-                self.user_emb = dill.load(f)
+                self.user_emb: NDArray[np.float32] = dill.load(f)
         except FileNotFoundError:
             print("Run `make user_emb` to load a pickled object")
-        with open(item_inv_m, "rb") as f:
-            self.item_inv_m = dill.load(f)
         with open(watched_u2i, "rb") as f:
-            self.watched_u2i = dill.load(f)
-        self.popular_model = popular_model
+            self.watched_u2i: Dict[int, List[int]] = dill.load(f)
+        self.popular_model: SimplePopularModel = popular_model
 
     def predict(self, user_id: int) -> Optional[List[int]]:
         if user_id in self.user_m:
@@ -185,12 +182,14 @@ class ANNLightFM:
             pr_items = [self.item_inv_m[item] for item in pr_internal_items]
 
             # Delete already seen items
-            pr_items = np.array(pr_items, dtype="uint16")
+            pr_items_numpy = np.array(pr_items, dtype="uint16")
             already_seen_items = np.array(
                 self.watched_u2i[user_id], dtype="uint16"
             )
 
-            unseen_items = pr_items[~np.isin(pr_items, already_seen_items)]
+            unseen_items = pr_items_numpy[
+                ~np.isin(pr_items_numpy, already_seen_items)
+            ]
             num_lost_items = self.K - unseen_items.shape[0]
             if num_lost_items != 0:
                 popular_items = np.array(

@@ -122,7 +122,7 @@ async def get_reco(
             if model_name == "light_fm_1"
             else online_fm_part_popular.predict(user_id, k_recs)
         )
-    elif model_name in ("ann_lightfm"):
+    elif model_name == "ann_lightfm":
         reco = ann_lightfm.predict(user_id)
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
