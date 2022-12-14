@@ -37,6 +37,7 @@ MANIFEST
 
 # Local files
 models/light_fm.dill
+models/lightfm/user_embeddings.dill
 
 # Unit test / coverage reports
 htmlcov/

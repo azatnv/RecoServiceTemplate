@@ -150,13 +150,22 @@ class OnlineFM:
 
 
 class ANNLightFM:
+    # pylint: disable=too-many-instance-attributes
+    # Eight is reasonable in this case.
     def __init__(
         self,
-        ann_paths: Tuple[str, str, str, str, str],
+        ann_paths: Tuple[str, str, str, str, str, str],
         popular_model: SimplePopularModel,
         k: int = 10,
     ):
-        user_m, item_inv_m, index_path, user_emb, watched_u2i, cold_reco_dict = ann_paths
+        (
+            user_m,
+            item_inv_m,
+            index_path,
+            user_emb,
+            watched_u2i,
+            cold_reco_dict,
+        ) = ann_paths
         self.K = k
         with open(user_m, "rb") as f:
             self.user_m: Dict[int, int] = dill.load(f)
