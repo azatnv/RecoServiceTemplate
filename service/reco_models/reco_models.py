@@ -219,6 +219,5 @@ class ANNLightFM:
                 )
                 if len(unseen_items) != 10:
                     return self.popular_model.predict(user_id, k_recs=self.K)
-            return unseen_items[:self.K].tolist()
-        else:
-            return self.popular_model.predict(user_id, k_recs=self.K)
+            return unseen_items[: self.K].tolist()
+        return self.popular_model.predict(user_id, k_recs=self.K)
