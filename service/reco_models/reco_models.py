@@ -212,6 +212,4 @@ class ANNLightFM:
                     return None
             return unseen_items[:self.K].tolist()
         else:
-            if user_id in self.cold_reco_dict:
-                return self.cold_reco_dict[user_id]
-            return None
+            return self.popular_model.predict(user_id, k_recs=self.K)
