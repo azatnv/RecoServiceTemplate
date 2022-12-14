@@ -180,7 +180,7 @@ class ANNLightFM:
         if user_id in self.user_m:
             user_vector = self.user_emb[self.user_m[user_id]]
             pr_internal_items = self.index.knnQuery(
-                vector=user_vector, k=self.K
+                vector=user_vector, k=self.K * 3
             )[0]
             pr_items = [self.item_inv_m[item] for item in pr_internal_items]
 
@@ -192,7 +192,7 @@ class ANNLightFM:
 
             unseen_items = pr_items[~np.isin(pr_items, already_seen_items)]
             num_lost_items = self.K - unseen_items.shape[0]
-            if num_lost_items != 0:
+            if num_lost_items > 0:
                 popular_items = np.array(
                     self.popular_model.predict(user_id, 5 * self.K)
                 )
@@ -209,5 +209,6 @@ class ANNLightFM:
                 )
                 if len(unseen_items) != 10:
                     return None
-            return unseen_items.tolist()
+            else:
+                return unseen_items[:self.K].tolist()
         return None
