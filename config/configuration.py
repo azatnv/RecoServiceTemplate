@@ -18,11 +18,13 @@ ANN_item_inv_m = "models/lightfm/item_inv_mapping.dill"
 ANN_index_path = "models/lightfm/items_index.hnsw"
 ANN_user_emb = "models/lightfm/user_embeddings.dill"
 ANN_watched_u2i = "models/lightfm/watched_user2items_dictionary.dill"
+ANN_COLD_RECO_DICT = "models/lightfm/lightfm_cold_users_reco_dictionary.dill"
 
 ANN_PATHS = (
     ANN_user_m,
     ANN_item_inv_m,
     ANN_index_path,
     ANN_user_emb,
-    ANN_watched_u2i
+    ANN_watched_u2i,
+    ANN_COLD_RECO_DICT
 )

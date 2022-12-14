@@ -156,7 +156,7 @@ class ANNLightFM:
         popular_model: SimplePopularModel,
         k: int = 10,
     ):
-        user_m, item_inv_m, index_path, user_emb, watched_u2i = ann_paths
+        user_m, item_inv_m, index_path, user_emb, watched_u2i, cold_reco_dict = ann_paths
         self.K = k
         with open(user_m, "rb") as f:
             self.user_m: Dict[int, int] = dill.load(f)
@@ -171,6 +171,8 @@ class ANNLightFM:
             print("Run `make user_emb` to load a pickled object")
         with open(watched_u2i, "rb") as f:
             self.watched_u2i: Dict[int, List[int]] = dill.load(f)
+        with open(cold_reco_dict, "rb") as f:
+            self.cold_reco_dict: Dict[int, List[int]] = dill.load(f)
         self.popular_model: SimplePopularModel = popular_model
 
     def predict(self, user_id: int) -> Optional[List[int]]:
@@ -208,6 +210,8 @@ class ANNLightFM:
                 )
                 if len(unseen_items) != 10:
                     return None
-            else:
-                return unseen_items[:self.K].tolist()
-        return None
+            return unseen_items[:self.K].tolist()
+        else:
+            if user_id in self.cold_reco_dict:
+                return self.cold_reco_dict[user_id]
+            return None
