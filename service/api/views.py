@@ -5,13 +5,35 @@ from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
+from config.configuration import (
+    OFFLINE_KNN_MODEL_PATH,
+    ONLINE_KNN_MODEL_PATH,
+    POPULAR_MODEL_RECS,
+    POPULAR_MODEL_USERS,
+)
 from service.api.exceptions import (
     BearerAccessTokenError,
     ModelNotFoundError,
     UserNotFoundError,
 )
+from service.api.responses import (
+    AuthorizationResponse,
+    ForbiddenResponse,
+    NotFoundError,
+)
 from service.log import app_logger
-from service.models import Error, ErrorResponse
+from service.reco_models.reco_models import (
+    OfflineKnnModel,
+    OnlineKnnModel,
+    SimplePopularModel,
+)
+
+popular_model = SimplePopularModel(
+    POPULAR_MODEL_USERS,
+    POPULAR_MODEL_RECS,
+)
+offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
+online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
 
 
 class RecoResponse(BaseModel):
@@ -23,6 +45,12 @@ bearer_scheme = HTTPBearer()
 
 router = APIRouter()
 
+responses = {
+    '401': AuthorizationResponse().get_response(),   # type: ignore
+    '403': ForbiddenResponse().get_response(),       # type: ignore
+    '404': NotFoundError().get_response()            # type: ignore
+}
+
 
 @router.get(
     path="/health",
@@ -30,82 +58,6 @@ router = APIRouter()
 )
 async def health() -> str:
     return "I am alive"
-
-
-# Null values are ignored by OpenAPI.
-# Problem: https://github.com/tiangolo/fastapi/issues/5559
-responses = {
-    401: {
-        "model": ErrorResponse,
-        "description": "Error: Unauthorized",
-        "content": {
-            "application/json": {
-                "example": ErrorResponse(
-                    errors=[
-                        Error(
-                            error_key="incorrect_bearer_key",
-                            error_message=(
-                                "Authorization failure due to incorrect token"
-                                ),
-                            error_loc=None,
-                        )
-                    ]
-                )
-            }
-        },
-    },
-    403: {
-        "model": ErrorResponse,
-        "description": "Error: Forbidden",
-        "content": {
-            "application/json": {
-                "example": ErrorResponse(
-                    errors=[
-                        Error(
-                            error_key="http_exception",
-                            error_message="Not authenticated",
-                            error_loc=None,
-                        )
-                    ]
-                )
-            }
-        },
-    },
-    404: {
-        "model": ErrorResponse,
-        "description": "Error: Not Found",
-        "content": {
-            "application/json": {
-                "examples": {
-                    "example_1": {
-                        "summary": "Model error",
-                        "value": ErrorResponse(
-                            errors=[
-                                Error(
-                                    error_key="model_not_found",
-                                    error_message="Model is unknown",
-                                    error_loc=None,
-                                )
-                            ]
-                        ),
-                    },
-                    "example_2": {
-                        "summary": "User error",
-                        "value": ErrorResponse(
-                            errors=[
-                                Error(
-                                    error_key="user_not_found",
-                                    error_message="User is unknown",
-                                    error_loc=None,
-                                )
-                            ]
-                        ),
-                    },
-                }
-            },
-        },
-    },
-}
 
 
 @router.get(
@@ -122,16 +74,26 @@ async def get_reco(
 ) -> RecoResponse:
     app_logger.info(f"Request for model: {model_name}, user_id: {user_id}")
 
-    # TODO() 1. Добавить описание возможных ответов (401, 403,, 404) в сваггер
     if token.credentials != "Team_5":
         raise BearerAccessTokenError()
     if user_id > 10**9:
         raise UserNotFoundError(error_message=f"User {user_id} not found")
-    if model_name != "test_model":
-        raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
     k_recs = request.app.state.k_recs
-    reco = list(range(k_recs))
+
+    if model_name == "test_model":
+        reco = list(range(k_recs))
+    elif model_name in ("knn", "online_knn"):
+        try:
+            reco = offline_knn_model.predict(user_id) if model_name == "knn" \
+                else online_knn_model.predict(user_id)
+            if not reco:
+                reco = popular_model.predict(user_id, k_recs)
+        except TypeError:
+            reco = list(range(k_recs))
+    else:
+        raise ModelNotFoundError(error_message=f"Model {model_name} not found")
+
     return RecoResponse(user_id=user_id, items=reco)
 
 
