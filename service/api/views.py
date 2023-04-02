@@ -6,10 +6,16 @@ from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
 from config.configuration import (
+    ANN_PATHS,
+    FEATURES_FOR_COLD,
+    ITEM_MAPPING,
+    LIGHT_FM,
     OFFLINE_KNN_MODEL_PATH,
     ONLINE_KNN_MODEL_PATH,
     POPULAR_MODEL_RECS,
     POPULAR_MODEL_USERS,
+    UNIQUE_FEATURES,
+    USER_MAPPING,
 )
 from service.api.exceptions import (
     BearerAccessTokenError,
@@ -23,7 +29,9 @@ from service.api.responses import (
 )
 from service.log import app_logger
 from service.reco_models.reco_models import (
+    ANNLightFM,
     OfflineKnnModel,
+    OnlineFM,
     OnlineKnnModel,
     SimplePopularModel,
 )
@@ -34,6 +42,25 @@ popular_model = SimplePopularModel(
 )
 offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
 online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
+# Use LightFM model to predict recos for cold with features,
+# popular for others
+online_fm_part_popular = OnlineFM(
+    name=LIGHT_FM,
+    USER_MAPPING=USER_MAPPING,
+    ITEM_MAPPING=ITEM_MAPPING,
+    FEATURES_FOR_COLD=FEATURES_FOR_COLD,
+    UNIQUE_FEATURES=UNIQUE_FEATURES,
+)
+#  Use popular model to predict recos for all cold
+online_fm_all_popular = OnlineFM(
+    name=LIGHT_FM,
+    cold_with_fm=False,
+    USER_MAPPING=USER_MAPPING,
+    ITEM_MAPPING=ITEM_MAPPING,
+    FEATURES_FOR_COLD=FEATURES_FOR_COLD,
+    UNIQUE_FEATURES=UNIQUE_FEATURES,
+)
+ann_lightfm = ANNLightFM(ANN_PATHS, popular_model)
 
 
 class RecoResponse(BaseModel):
@@ -46,9 +73,9 @@ bearer_scheme = HTTPBearer()
 router = APIRouter()
 
 responses = {
-    '401': AuthorizationResponse().get_response(),   # type: ignore
-    '403': ForbiddenResponse().get_response(),       # type: ignore
-    '404': NotFoundError().get_response()            # type: ignore
+    "401": AuthorizationResponse().get_response(),  # type: ignore
+    "403": ForbiddenResponse().get_response(),  # type: ignore
+    "404": NotFoundError().get_response(),  # type: ignore
 }
 
 
@@ -84,15 +111,24 @@ async def get_reco(
     if model_name == "test_model":
         reco = list(range(k_recs))
     elif model_name in ("knn", "online_knn"):
-        try:
-            reco = offline_knn_model.predict(user_id) if model_name == "knn" \
-                else online_knn_model.predict(user_id)
-            if not reco:
-                reco = popular_model.predict(user_id, k_recs)
-        except TypeError:
-            reco = list(range(k_recs))
+        reco = (
+            offline_knn_model.predict(user_id)
+            if model_name == "knn"
+            else online_knn_model.predict(user_id)
+        )
+    elif model_name in ("light_fm_1", "light_fm_2"):
+        reco = (
+            online_fm_all_popular.predict(user_id, k_recs)
+            if model_name == "light_fm_1"
+            else online_fm_part_popular.predict(user_id, k_recs)
+        )
+    elif model_name == "ann_lightfm":
+        reco = ann_lightfm.predict(user_id)
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
+
+    if not reco:
+        reco = popular_model.predict(user_id, k_recs)
 
     return RecoResponse(user_id=user_id, items=reco)
 

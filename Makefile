@@ -21,8 +21,12 @@ CONTAINER_NAME := reco_service
 	poetry check
 
 setup: .venv
-	pip install implicit==0.4.4
+	pip install implicit==0.4.4 lightfm==1.16
 
+script:
+	./config/load_light_fm.sh
+user_emb:
+	./config/load_user_emb.sh
 
 # Clean
 
@@ -37,7 +41,10 @@ clean:
 isort_fix: .venv
 	isort $(PROJECT) $(TESTS)
 
-format: isort_fix
+blake: .venv
+	black $(PROJECT) $(TESTS) -l 79
+
+format: isort_fix blake
 
 
 # Lint
