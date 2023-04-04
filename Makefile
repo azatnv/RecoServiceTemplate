@@ -21,12 +21,12 @@ CONTAINER_NAME := reco_service
 	poetry check
 
 setup: .venv
-	pip install implicit==0.4.4 lightfm==1.16
+# 	теперь implicit и lightfm загружаются через poetry
+#	pip install implicit==0.4.4 lightfm==1.16
 
-script:
-	./config/load_light_fm.sh
-user_emb:
-	./config/load_user_emb.sh
+load_models:
+	# запустить make load_models (бывший make script) перед запуском сервера или сборкой докера
+	./load_models_from_google_drive.sh
 
 # Clean
 
@@ -41,10 +41,10 @@ clean:
 isort_fix: .venv
 	isort $(PROJECT) $(TESTS)
 
-blake: .venv
-	black $(PROJECT) $(TESTS) -l 79
+black: .venv
+	black $(PROJECT) $(TESTS) -l 88
 
-format: isort_fix blake
+format: isort_fix black
 
 
 # Lint
@@ -78,7 +78,7 @@ build:
 	docker build . -t $(IMAGE_NAME)
 
 run: build
-	docker run -p 8080:8080 --name $(CONTAINER_NAME) $(IMAGE_NAME)
+	docker run -p 80:80 --name $(CONTAINER_NAME) $(IMAGE_NAME)
 
 # All
 

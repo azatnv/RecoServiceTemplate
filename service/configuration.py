@@ -26,5 +26,5 @@ ANN_PATHS = (
     ANN_index_path,
     ANN_user_emb,
     ANN_watched_u2i,
-    ANN_COLD_RECO_DICT
+    ANN_COLD_RECO_DICT,
 )

@@ -25,6 +25,9 @@ dill = "^0.3.6"
 pandas = "^1.5.2"
 nmslib = "^2.1.1"
 black = "^22.12.0"
+gdown = "^4.7.1"
+lightfm = "1.16"
+implicit = "0.4.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"

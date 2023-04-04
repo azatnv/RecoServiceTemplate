@@ -5,7 +5,17 @@ from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
-from config.configuration import (
+from service.api.exceptions import (
+    BearerAccessTokenError,
+    ModelNotFoundError,
+    UserNotFoundError,
+)
+from service.api.responses import (
+    AuthorizationResponse,
+    ForbiddenResponse,
+    NotFoundError,
+)
+from service.configuration import (
     ANN_PATHS,
     FEATURES_FOR_COLD,
     ITEM_MAPPING,
@@ -16,16 +26,6 @@ from config.configuration import (
     POPULAR_MODEL_USERS,
     UNIQUE_FEATURES,
     USER_MAPPING,
-)
-from service.api.exceptions import (
-    BearerAccessTokenError,
-    ModelNotFoundError,
-    UserNotFoundError,
-)
-from service.api.responses import (
-    AuthorizationResponse,
-    ForbiddenResponse,
-    NotFoundError,
 )
 from service.log import app_logger
 from service.reco_models.reco_models import (

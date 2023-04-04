@@ -12,9 +12,7 @@ from scipy import sparse
 
 class SimplePopularModel:
     def __init__(self, users_path: str, recs_path: str):
-        self.users_dictionary: Dict[int, str] = pickle.load(
-            open(users_path, "rb")
-        )
+        self.users_dictionary: Dict[int, str] = pickle.load(open(users_path, "rb"))
         self.popular_dictionary: Dict[str, List[int]] = pickle.load(
             open(recs_path, "rb")
         )
@@ -101,9 +99,7 @@ class OnlineFM:
         with open(UNIQUE_FEATURES, "rb") as f:
             self.features: NDArray[np.unicode_] = dill.load(f)
 
-        self.items_internal_ids = np.arange(
-            len(self.item_mapping.keys()), dtype=int
-        )
+        self.items_internal_ids = np.arange(len(self.item_mapping.keys()), dtype=int)
         self.cold_with_fm: bool = cold_with_fm
 
     def _get_hot_reco(self, iternal_user_id: int, k_recs: int) -> List[int]:
@@ -115,9 +111,7 @@ class OnlineFM:
         recs = [self.item_mapping[reco] for reco in recs]
         return recs
 
-    def _get_cold_reco(
-        self, user_feature: Dict[str, str], k_recs: int
-    ) -> List[int]:
+    def _get_cold_reco(self, user_feature: Dict[str, str], k_recs: int) -> List[int]:
         user_feature_list = list(user_feature.values())
         feature_mask = np.isin(self.features, user_feature_list)
         feature_row = sparse.csr_matrix(feature_mask)
@@ -134,17 +128,13 @@ class OnlineFM:
         # Check if user is hot or not
         iternal_user_id = self.user_mapping.get(user_id, None)
         if iternal_user_id:
-            return self._get_hot_reco(
-                iternal_user_id=iternal_user_id, k_recs=k_recs
-            )
+            return self._get_hot_reco(iternal_user_id=iternal_user_id, k_recs=k_recs)
 
         if self.cold_with_fm:
             # Check if cold user have any features
             user_feature = self.features_for_cold.get(user_id, None)
             if user_feature:
-                return self._get_cold_reco(
-                    user_feature=user_feature, k_recs=k_recs
-                )
+                return self._get_cold_reco(user_feature=user_feature, k_recs=k_recs)
         # If not the case, let the popular model to make recos
         return None
 
@@ -187,20 +177,14 @@ class ANNLightFM:
     def predict(self, user_id: int) -> Optional[List[int]]:
         if user_id in self.user_m:
             user_vector = self.user_emb[self.user_m[user_id]]
-            pr_internal_items = self.index.knnQuery(
-                vector=user_vector, k=self.K
-            )[0]
+            pr_internal_items = self.index.knnQuery(vector=user_vector, k=self.K)[0]
             pr_items = [self.item_inv_m[item] for item in pr_internal_items]
 
             # Delete already seen items
             pr_items_numpy = np.array(pr_items, dtype="uint16")
-            already_seen_items = np.array(
-                self.watched_u2i[user_id], dtype="uint16"
-            )
+            already_seen_items = np.array(self.watched_u2i[user_id], dtype="uint16")
 
-            unseen_items = pr_items_numpy[
-                ~np.isin(pr_items_numpy, already_seen_items)
-            ]
+            unseen_items = pr_items_numpy[~np.isin(pr_items_numpy, already_seen_items)]
             num_lost_items = self.K - unseen_items.shape[0]
             if num_lost_items > 0:
                 popular_items = np.array(
@@ -210,13 +194,9 @@ class ANNLightFM:
                 popular_items = popular_items[
                     ~np.isin(popular_items, already_seen_items)
                 ]
-                popular_items = popular_items[
-                    ~np.isin(popular_items, unseen_items)
-                ]
+                popular_items = popular_items[~np.isin(popular_items, unseen_items)]
 
-                unseen_items = np.append(
-                    unseen_items, popular_items[:num_lost_items]
-                )
+                unseen_items = np.append(unseen_items, popular_items[:num_lost_items])
                 if len(unseen_items) != 10:
                     return self.popular_model.predict(user_id, k_recs=self.K)
             return unseen_items[: self.K].tolist()
