@@ -19,10 +19,11 @@ CONTAINER_NAME := reco_service
 .venv:
 	poetry install --no-root
 	poetry check
+# 	implicit и lightfm всё же следует загружать через pip, не добавляя в poetry
+	. .venv/bin/activate
+	pip install implicit==0.4.4 lightfm==1.16
 
 setup: .venv
-# 	теперь implicit и lightfm загружаются через poetry
-#	pip install implicit==0.4.4 lightfm==1.16
 
 load_models:
 	# запустить make load_models (бывший make script) перед запуском сервера или сборкой докера

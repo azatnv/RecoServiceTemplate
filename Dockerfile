@@ -6,6 +6,7 @@ WORKDIR $APP_DIR
 COPY . $APP_DIR
 
 RUN pip install -U --no-cache-dir pip poetry setuptools wheel && \
+	poetry add implicit==0.4.4 lightfm==1.16 --lock && \
     poetry build -f wheel && \
     poetry export -f requirements.txt -o requirements.txt --without-hashes && \
     pip wheel -w dist -r requirements.txt

@@ -1,5 +1,6 @@
 *
 !service
+!models
 !gunicorn.config.py
 !main.py
 !poetry.lock
