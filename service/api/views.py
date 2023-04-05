@@ -22,20 +22,23 @@ from service.configuration import (
     LIGHT_FM,
     OFFLINE_KNN_MODEL_PATH,
     ONLINE_KNN_MODEL_PATH,
+    POPULAR_IN_CATEGORY,
     POPULAR_MODEL_RECS,
     POPULAR_MODEL_USERS,
     UNIQUE_FEATURES,
     USER_MAPPING,
 )
 from service.log import app_logger
-from service.reco_models.reco_models import (
+from service.reco_models import (
     ANNLightFM,
     OfflineKnnModel,
     OnlineFM,
     OnlineKnnModel,
+    PopularInCategory,
     SimplePopularModel,
 )
 
+baseline_model = PopularInCategory(POPULAR_IN_CATEGORY)
 popular_model = SimplePopularModel(
     POPULAR_MODEL_USERS,
     POPULAR_MODEL_RECS,
@@ -110,6 +113,8 @@ async def get_reco(
 
     if model_name == "test_model":
         reco = list(range(k_recs))
+    elif model_name == "baseline":
+        reco = baseline_model.predict(user_id, k_recs)
     elif model_name in ("knn", "online_knn"):
         reco = (
             offline_knn_model.predict(user_id)

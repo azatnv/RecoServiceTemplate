@@ -38,6 +38,7 @@ MANIFEST
 # Local files
 models/light_fm.dill
 models/lightfm/user_embeddings.dill
+models/popular_in_category/popular_in_category_model.dill
 
 # Unit test / coverage reports
 htmlcov/
