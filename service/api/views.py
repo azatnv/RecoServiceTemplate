@@ -91,10 +91,7 @@ async def health() -> str:
 
 
 @router.get(
-    path="/reco/{model_name}/{user_id}",
-    tags=["Recommendations"],
-    response_model=RecoResponse,
-    responses=responses,  # type: ignore
+    path="/reco/{model_name}/{user_id}", tags=["Recommendations"], response_model=RecoResponse, responses=responses
 )
 async def get_reco(
     request: Request,
@@ -111,30 +108,25 @@ async def get_reco(
 
     k_recs = request.app.state.k_recs
 
-    if model_name == "test_model":
-        reco = list(range(k_recs))
-    elif model_name == "baseline":
+    reco = None
+    model_names = ["baseline", "knn", "online_knn", "light_fm_1", "light_fm_2", "ann_lightfm"]
+    if model_name == "baseline":
         reco = baseline_model.predict(user_id, k_recs)
-    elif model_name in ("knn", "online_knn"):
-        reco = (
-            offline_knn_model.predict(user_id)
-            if model_name == "knn"
-            else online_knn_model.predict(user_id)
-        )
-    elif model_name in ("light_fm_1", "light_fm_2"):
+    if model_name in ("knn", "online_knn"):
+        reco = offline_knn_model.predict(user_id) if model_name == "knn" else online_knn_model.predict(user_id)
+    if model_name in ("light_fm_1", "light_fm_2"):
         reco = (
             online_fm_all_popular.predict(user_id, k_recs)
             if model_name == "light_fm_1"
             else online_fm_part_popular.predict(user_id, k_recs)
         )
-    elif model_name == "ann_lightfm":
+    if model_name == "ann_lightfm":
         reco = ann_lightfm.predict(user_id)
-    else:
-        raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
+    if model_name not in model_names:
+        raise ModelNotFoundError(error_message=f"Model {model_name} not found")
     if not reco:
         reco = popular_model.predict(user_id, k_recs)
-
     return RecoResponse(user_id=user_id, items=reco)
 
 

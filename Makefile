@@ -43,7 +43,7 @@ isort_fix: .venv
 	isort $(PROJECT) $(TESTS)
 
 black: .venv
-	black $(PROJECT) $(TESTS) -l 88
+	black $(PROJECT) $(TESTS) -l 120
 
 format: isort_fix black
 

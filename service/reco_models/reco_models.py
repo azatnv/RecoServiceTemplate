@@ -13,9 +13,7 @@ from scipy import sparse
 class SimplePopularModel:
     def __init__(self, users_path: str, recs_path: str):
         self.users_dictionary: Dict[int, str] = pickle.load(open(users_path, "rb"))
-        self.popular_dictionary: Dict[str, List[int]] = pickle.load(
-            open(recs_path, "rb")
-        )
+        self.popular_dictionary: Dict[str, List[int]] = pickle.load(open(recs_path, "rb"))
 
     def predict(self, user_id: int, k_recs: int) -> List[int]:
         try:
@@ -103,9 +101,7 @@ class OnlineFM:
         self.cold_with_fm: bool = cold_with_fm
 
     def _get_hot_reco(self, iternal_user_id: int, k_recs: int) -> List[int]:
-        hot_scores: NDArray[np.float32] = self.model.predict(
-            iternal_user_id, item_ids=self.items_internal_ids
-        )
+        hot_scores: NDArray[np.float32] = self.model.predict(iternal_user_id, item_ids=self.items_internal_ids)
         idxs = np.argsort(hot_scores)[::-1]
         recs = self.items_internal_ids[idxs][:k_recs]
         recs = [self.item_mapping[reco] for reco in recs]
@@ -116,9 +112,7 @@ class OnlineFM:
         feature_mask = np.isin(self.features, user_feature_list)
         feature_row = sparse.csr_matrix(feature_mask)
 
-        cold_scores: NDArray[np.float32] = self.model.predict(
-            0, self.items_internal_ids, user_features=feature_row
-        )
+        cold_scores: NDArray[np.float32] = self.model.predict(0, self.items_internal_ids, user_features=feature_row)
         idxs = np.argsort(cold_scores)[::-1]
         recs = self.items_internal_ids[idxs][:k_recs]
         recs = [self.item_mapping[reco] for reco in recs]
@@ -187,13 +181,9 @@ class ANNLightFM:
             unseen_items = pr_items_numpy[~np.isin(pr_items_numpy, already_seen_items)]
             num_lost_items = self.K - unseen_items.shape[0]
             if num_lost_items > 0:
-                popular_items = np.array(
-                    self.popular_model.predict(user_id, 5 * self.K)
-                )
+                popular_items = np.array(self.popular_model.predict(user_id, 5 * self.K))
 
-                popular_items = popular_items[
-                    ~np.isin(popular_items, already_seen_items)
-                ]
+                popular_items = popular_items[~np.isin(popular_items, already_seen_items)]
                 popular_items = popular_items[~np.isin(popular_items, unseen_items)]
 
                 unseen_items = np.append(unseen_items, popular_items[:num_lost_items])

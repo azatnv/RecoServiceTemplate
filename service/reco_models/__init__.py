@@ -6,3 +6,12 @@ from .reco_models import (
     OnlineKnnModel,
     SimplePopularModel,
 )
+
+__all__ = [
+    "PopularInCategory",
+    "ANNLightFM",
+    "OfflineKnnModel",
+    "OnlineFM",
+    "OnlineKnnModel",
+    "SimplePopularModel",
+]

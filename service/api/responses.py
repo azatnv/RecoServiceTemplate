@@ -29,9 +29,7 @@ class AuthorizationResponse(BasicErrorResponse):
                     errors=[
                         Error(
                             error_key="incorrect_bearer_key",
-                            error_message=(
-                                "Authorization failure due to incorrect token"
-                            ),
+                            error_message=("Authorization failure due to incorrect token"),
                             error_loc=None,
                         )
                     ]

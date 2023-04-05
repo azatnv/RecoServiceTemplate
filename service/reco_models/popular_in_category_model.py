@@ -1,5 +1,6 @@
+from typing import Any, Dict, List, Set
+
 import dill
-from typing import List, Set, Dict, Union
 
 
 class PopularInCategory:
@@ -11,20 +12,15 @@ class PopularInCategory:
     model_path: str
         Path to dilled model
     """
+
     __slots__ = {"model"}
+
     def __init__(self, model_path: str):
         try:
             with open(model_path, "rb") as file:
-                self.model: Dict[
-                    str, Union[
-                        Dict[int, Set[int]],   # user_to_watched_items_map
-                        Dict[int, str],         # user_to_category_map
-                        Dict[str, List[int]]    # category_to_popular_recs
-                    ]
-                ] = dill.load(file)
-        except Exception as e:
-            print(f"ERROR while loading model: {e}"
-                  f"\nRun `make load_models` to load model from GDrive")
+                self.model: Dict[str, Any] = dill.load(file)
+        except FileNotFoundError as e:
+            print(f"ERROR while loading model: {e}" f"\nRun `make load_models` to load model from GDrive")
 
     def predict(self, user_id: int, k: int) -> List[int]:
         """Returns top k items for specific user_id
@@ -36,9 +32,9 @@ class PopularInCategory:
         :return: List[int]
             Returns k item_ids
         """
-        user_to_watched_items_map = self.model["user_to_watched_items_map"]
-        user_to_category_map = self.model["user_to_category_map"]
-        category_to_popular_recs = self.model["category_to_popular_recs"]
+        user_to_watched_items_map: Dict[int, Set[int]] = self.model["user_to_watched_items_map"]
+        user_to_category_map: Dict[int, str] = self.model["user_to_category_map"]
+        category_to_popular_recs: Dict[str, List[int]] = self.model["category_to_popular_recs"]
 
         watched_items = set()
         if user_id in user_to_watched_items_map:
