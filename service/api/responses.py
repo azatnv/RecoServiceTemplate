@@ -7,11 +7,11 @@ class BasicErrorResponse:
     def __init__(self) -> None:
         self.model = ErrorResponse
         self.description: str = "None"
-        self.content: Dict[Any, Any] = {"application/json": {}}
+        self.content: Dict[str, Any] = {"application/json": {}}
 
-    def get_response(self) -> Dict[Any, Any]:
+    def get_response(self) -> Dict[str, Any]:
         "Return response of the Error"
-        response: Dict[Any, Any] = {
+        response: Dict[str, Any] = {
             "model": self.model,
             "description": self.description,
             "content": self.content,
@@ -20,10 +20,10 @@ class BasicErrorResponse:
 
 
 class AuthorizationResponse(BasicErrorResponse):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.description: str = "Error: Unauthorized"
-        self.content: Dict[Any, Any] = {
+        self.content: Dict[str, Any] = {
             "application/json": {
                 "example": ErrorResponse(
                     errors=[
@@ -37,16 +37,12 @@ class AuthorizationResponse(BasicErrorResponse):
             }
         }
 
-    def get_response(self) -> Dict[Any, Any]:
-        response = super().get_response()
-        return response
-
 
 class ForbiddenResponse(BasicErrorResponse):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.description: str = "Error: Forbidden"
-        self.content: Any = {
+        self.content: Dict[str, Any] = {
             "application/json": {
                 "example": ErrorResponse(
                     errors=[
@@ -62,10 +58,10 @@ class ForbiddenResponse(BasicErrorResponse):
 
 
 class NotFoundError(BasicErrorResponse):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.description: str = "Error: Not Found"
-        self.content: Any = {
+        self.content: Dict[str, Any] = {
             "application/json": {
                 "examples": {
                     "example_1": {

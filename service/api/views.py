@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.security import HTTPBearer
@@ -75,10 +75,10 @@ bearer_scheme = HTTPBearer()
 
 router = APIRouter()
 
-responses = {
-    "401": AuthorizationResponse().get_response(),  # type: ignore
-    "403": ForbiddenResponse().get_response(),  # type: ignore
-    "404": NotFoundError().get_response(),  # type: ignore
+responses: Dict[str, Any] = {
+    "401": AuthorizationResponse().get_response(),
+    "403": ForbiddenResponse().get_response(),
+    "404": NotFoundError().get_response(),
 }
 
 
@@ -91,7 +91,10 @@ async def health() -> str:
 
 
 @router.get(
-    path="/reco/{model_name}/{user_id}", tags=["Recommendations"], response_model=RecoResponse, responses=responses
+    path="/reco/{model_name}/{user_id}",
+    tags=["Recommendations"],
+    response_model=RecoResponse,
+    responses=responses,  # type: ignore
 )
 async def get_reco(
     request: Request,

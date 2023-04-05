@@ -20,8 +20,8 @@ CONTAINER_NAME := reco_service
 	poetry install --no-root
 	poetry check
 	# Загрузка implicit и lightfm. Через pip, отдельно от poetry
-	. .venv/bin/activate
-	pip install implicit==0.4.4 lightfm==1.16
+#	. .venv/bin/activate
+#	pip install implicit==0.4.4 lightfm==1.16
 
 setup: .venv
 
