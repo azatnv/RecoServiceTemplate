@@ -20,7 +20,7 @@ def test_get_reco_success(
     service_config: ServiceConfig,
 ) -> None:
     user_id = 123
-    path = GET_RECO_PATH.format(model_name="test_model", user_id=user_id)
+    path = GET_RECO_PATH.format(model_name="baseline", user_id=user_id)
     with client:
         response = client.get(path, headers={"Authorization": "Bearer Team_5"})
     assert response.status_code == HTTPStatus.OK
@@ -34,7 +34,7 @@ def test_get_reco_for_unknown_user(
     client: TestClient,
 ) -> None:
     user_id = 10**10
-    path = GET_RECO_PATH.format(model_name="test_model", user_id=user_id)
+    path = GET_RECO_PATH.format(model_name="baseline", user_id=user_id)
     with client:
         response = client.get(path, headers={"Authorization": "Bearer Team_5"})
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -58,7 +58,7 @@ def test_bearer_failed(
 ) -> None:
     user_id = 123
     incorrect_bearer = "lasdkladsk"
-    path = GET_RECO_PATH.format(model_name="test_model", user_id=user_id)
+    path = GET_RECO_PATH.format(model_name="baseline", user_id=user_id)
     with client:
         response = client.get(path, headers={"Authorization": f"Bearer {incorrect_bearer}"})
     assert response.status_code == HTTPStatus.UNAUTHORIZED
