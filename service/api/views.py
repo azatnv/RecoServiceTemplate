@@ -112,7 +112,9 @@ async def get_reco(
     k_recs = request.app.state.k_recs
 
     reco = None
-    model_names = ["baseline", "knn", "online_knn", "light_fm_1", "light_fm_2", "ann_lightfm"]
+    model_names = ["test_model", "baseline", "knn", "online_knn", "light_fm_1", "light_fm_2", "ann_lightfm"]
+    if model_name == "test_model":
+        reco = list(range(k_recs))
     if model_name == "baseline":
         reco = baseline_model.predict(user_id, k_recs)
     if model_name in ("knn", "online_knn"):

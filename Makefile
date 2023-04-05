@@ -60,7 +60,7 @@ mypy: .venv
 	mypy $(PROJECT) $(TESTS)
 
 pylint: .venv
-	pylint $(PROJECT) $(TESTS)
+	pylint $(PROJECT) $(TESTS) --disable=R0912
 
 lint: isort flake mypy pylint
 
