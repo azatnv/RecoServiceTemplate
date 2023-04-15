@@ -1,7 +1,7 @@
 # Popular models and its data
 POPULAR_MODEL_RECS = "models/popular_dictionary.pickle"
 POPULAR_MODEL_USERS = "models/users_dictionary.pickle"
-POPULAR_IN_CATEGORY = "models/popular_in_category/popular_in_category_model.pickle"
+POPULAR_IN_CATEGORY = "models/popular_in_category/popular_in_category_model.dill"
 
 # KNN models and its data
 OFFLINE_KNN_MODEL_PATH = "models/offline-dictionary-with-hot-knn-recs.dill"

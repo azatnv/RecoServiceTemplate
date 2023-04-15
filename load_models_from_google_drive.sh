@@ -18,5 +18,5 @@ download "models/" "models/light_fm.dill" "1NjTwM9hMveiV8twsfmcElswkj6iAZnsx"
 download "models/lightfm" "models/lightfm/user_embeddings.dill" "107WdHB8Ka6Hqupw4g3iALLEG2w3N52y9"
 
 download "models/popular_in_category" "models/popular_in_category/popular_in_category_model.dill" "1-0jA4-8wYMlzD1G4CxFQvjDVuwhRPtfm"
-download "models/popular_in_category" "models/popular_in_category/popular_in_category_model.joblib" "1P3dQMcAoZB9zH68X0vK7aqqLLtgUqdHG"
-download "models/popular_in_category" "models/popular_in_category/popular_in_category_model.pickle" "1-5BSwWt6dxj9EYhtOLwjtNYd50JV42lm"
+#download "models/popular_in_category" "models/popular_in_category/popular_in_category_model.joblib" "1P3dQMcAoZB9zH68X0vK7aqqLLtgUqdHG"
+#download "models/popular_in_category" "models/popular_in_category/popular_in_category_model.pickle" "1-5BSwWt6dxj9EYhtOLwjtNYd50JV42lm"

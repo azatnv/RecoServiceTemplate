@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Set
 
-import pickle
+import dill
 
 
 class PopularInCategory:
@@ -18,7 +18,7 @@ class PopularInCategory:
     def __init__(self, model_path: str):
         try:
             with open(model_path, "rb") as file:
-                self.model: Dict[str, Any] = pickle.load(file)
+                self.model: Dict[str, Any] = dill.load(file)
         except FileNotFoundError as e:
             print(f"ERROR while loading model: {e}" f"\nRun `make load_models` to load model from GDrive")
 
