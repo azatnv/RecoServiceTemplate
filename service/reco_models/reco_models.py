@@ -86,7 +86,7 @@ class OnlineFM:
             with open(f"{name}", "rb") as f:
                 self.model: LightFM = dill.load(f)
         except FileNotFoundError:
-            print("Run `make script` to load a pickled object")
+            print("Run `make load_models` to load a pickled object")
 
         with open(USER_MAPPING, "rb") as f:
             self.user_mapping: Dict[int, int] = dill.load(f)
@@ -161,7 +161,7 @@ class ANNLightFM:
             with open(user_emb, "rb") as f:
                 self.user_emb: NDArray[np.float32] = dill.load(f)
         except FileNotFoundError:
-            print("Run `make user_emb` to load a pickled object")
+            print("Run `make load_models` to load a pickled object")
         with open(watched_u2i, "rb") as f:
             self.watched_u2i: Dict[int, List[int]] = dill.load(f)
         with open(cold_reco_dict, "rb") as f:
