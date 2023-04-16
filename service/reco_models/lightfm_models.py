@@ -1,5 +1,3 @@
-import pickle
-from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple
 
 import dill
@@ -9,47 +7,11 @@ from lightfm import LightFM
 from numpy.typing import NDArray
 from scipy import sparse
 
-
-class SimplePopularModel:
-    def __init__(self, users_path: str, recs_path: str):
-        self.users_dictionary: Dict[int, str] = pickle.load(open(users_path, "rb"))
-        self.popular_dictionary: Dict[str, List[int]] = pickle.load(open(recs_path, "rb"))
-
-    def predict(self, user_id: int, k_recs: int) -> List[int]:
-        try:
-            # Check if user is suitable for category reco
-            category = self.users_dictionary.get(user_id, None)
-            if category:
-                return self.popular_dictionary[category][:k_recs]
-            # If not the case, give him popular on average
-            return self.popular_dictionary["popular_for_all"][:k_recs]
-        except TypeError:
-            return list(range(k_recs))
+from service.reco_models.model import RecommendationModel
+from service.reco_models.popular_models import SimplePopularModel
 
 
-class KnnModel(ABC):
-    def __init__(self, name: str):
-        with open(f"{name}", "rb") as f:
-            self.model = dill.load(f)
-
-    @abstractmethod
-    def predict(self, user_id: int) -> Optional[List[int]]:
-        pass
-
-
-class OfflineKnnModel(KnnModel):
-    def predict(self, user_id: int) -> Optional[List[int]]:
-        if user_id in self.model.keys():
-            return self.model[user_id]
-        return None
-
-
-class OnlineKnnModel(KnnModel):
-    def predict(self, user_id: int) -> Optional[List[int]]:
-        return self.model.predict(user_id)
-
-
-class OnlineFM:
+class OnlineFM(RecommendationModel):
     """This class is implementation of recommendations generation with LightFM.
 
     LightFM library realization is utilized. We use built-in method predict()
@@ -70,7 +32,6 @@ class OnlineFM:
         items_internal_ids:
         cold_with_fm: The flag to use LightFM model to to generate recos
             for cold users having features or not (use popular instead)
-
     """
 
     def __init__(
@@ -140,7 +101,6 @@ class ANNLightFM:
         self,
         ann_paths: Tuple[str, str, str, str, str, str],
         popular_model: SimplePopularModel,
-        k: int = 10,
     ):
         (
             user_m,
@@ -150,7 +110,6 @@ class ANNLightFM:
             watched_u2i,
             cold_reco_dict,
         ) = ann_paths
-        self.K = k
         with open(user_m, "rb") as f:
             self.user_m: Dict[int, int] = dill.load(f)
         with open(item_inv_m, "rb") as f:
@@ -168,10 +127,10 @@ class ANNLightFM:
             self.cold_reco_dict: Dict[int, List[int]] = dill.load(f)
         self.popular_model: SimplePopularModel = popular_model
 
-    def predict(self, user_id: int) -> Optional[List[int]]:
+    def predict(self, user_id: int, k_recs: int) -> Optional[List[int]]:
         if user_id in self.user_m:
             user_vector = self.user_emb[self.user_m[user_id]]
-            pr_internal_items = self.index.knnQuery(vector=user_vector, k=self.K)[0]
+            pr_internal_items = self.index.knnQuery(vector=user_vector, k=k_recs)[0]
             pr_items = [self.item_inv_m[item] for item in pr_internal_items]
 
             # Delete already seen items
@@ -179,15 +138,15 @@ class ANNLightFM:
             already_seen_items = np.array(self.watched_u2i[user_id], dtype="uint16")
 
             unseen_items = pr_items_numpy[~np.isin(pr_items_numpy, already_seen_items)]
-            num_lost_items = self.K - unseen_items.shape[0]
+            num_lost_items = k_recs - unseen_items.shape[0]
             if num_lost_items > 0:
-                popular_items = np.array(self.popular_model.predict(user_id, 5 * self.K))
+                popular_items = np.array(self.popular_model.predict(user_id, 5 * k_recs))
 
                 popular_items = popular_items[~np.isin(popular_items, already_seen_items)]
                 popular_items = popular_items[~np.isin(popular_items, unseen_items)]
 
                 unseen_items = np.append(unseen_items, popular_items[:num_lost_items])
                 if len(unseen_items) != 10:
-                    return self.popular_model.predict(user_id, k_recs=self.K)
-            return unseen_items[: self.K].tolist()
-        return self.popular_model.predict(user_id, k_recs=self.K)
+                    return self.popular_model.predict(user_id, k_recs=k_recs)
+            return unseen_items[:k_recs].tolist()
+        return self.popular_model.predict(user_id, k_recs=k_recs)

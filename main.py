@@ -1,9 +1,13 @@
 import os
 
 import uvicorn
+from prometheus_client import start_http_server
 
 from service.api.app import create_app
 from service.settings import get_config
+
+
+start_http_server(9100)
 
 config = get_config()
 app = create_app(config)

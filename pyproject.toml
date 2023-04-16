@@ -25,6 +25,7 @@ dill = "^0.3.6"
 pandas = "^1.5.2"
 nmslib = "^2.1.1"
 gdown = "^4.7.1"
+prometheus-client = "^0.16.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
