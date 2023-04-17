@@ -66,7 +66,7 @@ async def get_reco(
 
     reco = None
     if model_name in models.keys():
-        reco = models["model_name"].predict(user_id, k_recs=k_recs)
+        reco = models[model_name].predict(user_id, k_recs=k_recs)
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
