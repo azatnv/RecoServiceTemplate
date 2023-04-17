@@ -1,7 +1,7 @@
 import time
 
 from fastapi import FastAPI, Request
-from prometheus_client import Counter, Summary, Histogram
+from prometheus_client import Counter, Histogram
 from starlette.middleware.base import (
     BaseHTTPMiddleware,
     RequestResponseEndpoint,
@@ -14,9 +14,7 @@ from service.models import Error
 from service.response import server_error
 
 c = Counter("request_count", "Number of received HTTP requests")
-s = Summary("response_duration", "Time of response duration")
 h = Histogram("response_duration_hist", "Time of response duration")
-
 
 
 class AccessMiddleware(BaseHTTPMiddleware):
@@ -30,7 +28,6 @@ class AccessMiddleware(BaseHTTPMiddleware):
         request_time = time.perf_counter() - started_at
 
         c.inc()
-        s.observe(request_time)
         h.observe(request_time)
 
         status_code = response.status_code
