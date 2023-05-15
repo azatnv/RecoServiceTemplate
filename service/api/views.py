@@ -64,7 +64,6 @@ async def get_reco(
 
     k_recs = request.app.state.k_recs
 
-    reco = None
     if model_name in models.keys():
         reco = models[model_name].predict(user_id, k_recs=k_recs)
     else:

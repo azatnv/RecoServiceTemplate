@@ -394,6 +394,20 @@ files = [
 ]
 
 [[package]]
+name = "hnswlib"
+version = "0.7.0"
+description = "hnswlib"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "hnswlib-0.7.0.tar.gz", hash = "sha256:bc459668e7e44bb7454b256b90c98c5af750653919d9a91698dafcf416cf64c4"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "idna"
 version = "2.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -1474,4 +1488,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.10.0"
-content-hash = "c1d1d222ab3ede47192f418b048ece804a42d2d3bacc3bd657032f5908262390"
+content-hash = "ede2d72c59283a2343a57f1068ceae5968876c4caeb6452064c042eaf4eccd63"

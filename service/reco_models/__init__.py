@@ -6,7 +6,15 @@ from ..configuration import (
     POPULAR_IN_CATEGORY,
     POPULAR_MODEL_RECS,
     POPULAR_MODEL_USERS,
+    DSSM_dim,
+    DSSM_ef_s,
+    DSSM_iid_to_item_id,
+    DSSM_index,
+    DSSM_uid_to_watched_iids,
+    DSSM_user_id_to_uid,
+    DSSM_user_vectors,
 )
+from .dssm_models import DSSM
 from .knn_models import OfflineKnnModel, OnlineKnnModel
 from .model import RecommendationModel
 # from .lightfm_models import ANNLightFM, OnlineFM
@@ -25,6 +33,16 @@ popular_model = SimplePopularModel(
 offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
 online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
 
+dssm_model = DSSM(
+    index_path=DSSM_index,
+    user_vectors_path=DSSM_user_vectors,
+    user_id_to_uid_path=DSSM_user_id_to_uid,
+    iid_to_item_id_path=DSSM_iid_to_item_id,
+    uid_to_watched_iids_path=DSSM_uid_to_watched_iids,
+    dim=DSSM_dim,
+    ef_s=DSSM_ef_s,
+)
+
 models: Dict[str, RecommendationModel] = {
     "test_model": test_model,
     "baseline": baseline_model,
@@ -34,6 +52,7 @@ models: Dict[str, RecommendationModel] = {
     # "light_fm_1"
     # "light_fm_2"
     # "ann_lightfm"
+    "dssm": dssm_model,
 }
 
 # ----------------------------------------------------------
