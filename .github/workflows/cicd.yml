@@ -15,4 +15,6 @@ jobs:
       - run: pip install poetry
       - run: make setup
       - run: make lint
+      - run: make load load_models
       - run: make test
+
