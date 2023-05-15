@@ -33,6 +33,7 @@ popular_model = SimplePopularModel(
 offline_knn_model = OfflineKnnModel(OFFLINE_KNN_MODEL_PATH)
 online_knn_model = OnlineKnnModel(ONLINE_KNN_MODEL_PATH)
 
+
 dssm_model = DSSM(
     index_path=DSSM_index,
     user_vectors_path=DSSM_user_vectors,
