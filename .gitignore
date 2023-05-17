@@ -40,6 +40,7 @@ models/light_fm.dill
 models/lightfm/user_embeddings.dill
 models/popular_in_category/
 models/dssm/
+models/bert4rec/
 
 # Unit test / coverage reports
 htmlcov/

@@ -26,3 +26,5 @@ download "models/dssm" "dssm_user_vectors.pickle" "1IK9DileuZhbZVdQHf3aZRWSu2fIF
 download "models/dssm" "user_id_to_uid.json" "1-PDhIqsvx9XsCw4l0Oio4RjMye6E8o_a"
 download "models/dssm" "iid_to_item_id.json" "1-TrGCS_YmRWQkIeuhSXKsN7Xg3Nk_pEn"
 download "models/dssm" "uid_to_watched_iids.json" "1-QtArop7useHil5pIeAM2t-d9J1nKOhS"
+
+download "models/bert4rec" "user_id_to_bert4rec_recs.pickle" "15o1tIcsFlkQdmbw2Z9kucMzv724H-Qi8"

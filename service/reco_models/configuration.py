@@ -38,3 +38,5 @@ DSSM_iid_to_item_id = "models/dssm/iid_to_item_id.json"
 DSSM_uid_to_watched_iids = "models/dssm/uid_to_watched_iids.json"
 DSSM_dim = 128
 DSSM_ef_s = 50
+
+BERT4Rec_model_path = "models/bert4rec/user_id_to_bert4rec_recs.pickle"
