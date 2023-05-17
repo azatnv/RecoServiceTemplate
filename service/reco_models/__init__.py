@@ -1,12 +1,13 @@
 from typing import Dict
 
-
+from .bert4rec_model import BERT4Rec
 from .configuration import (
     OFFLINE_KNN_MODEL_PATH,
     ONLINE_KNN_MODEL_PATH,
     POPULAR_IN_CATEGORY,
     POPULAR_MODEL_RECS,
     POPULAR_MODEL_USERS,
+    BERT4Rec_model_path,
     DSSM_dim,
     DSSM_ef_s,
     DSSM_iid_to_item_id,
@@ -14,9 +15,7 @@ from .configuration import (
     DSSM_uid_to_watched_iids,
     DSSM_user_id_to_uid,
     DSSM_user_vectors,
-    BERT4Rec_model_path,
 )
-from .bert4rec_model import BERT4Rec
 from .dssm_models import DSSM
 from .knn_models import OfflineKnnModel, OnlineKnnModel
 from .model import RecommendationModel
@@ -47,7 +46,7 @@ dssm_model = DSSM(
     ef_s=DSSM_ef_s,
 )
 
-bert4rec_model = BERT4Rec(BERT4Rec_model_path)
+bert4rec_model = BERT4Rec(model_path=BERT4Rec_model_path)
 
 models: Dict[str, RecommendationModel] = {
     "test_model": test_model,
@@ -59,7 +58,7 @@ models: Dict[str, RecommendationModel] = {
     # "light_fm_2"
     # "ann_lightfm"
     "dssm": dssm_model,
-    "bert4rec": bert4rec_model
+    "bert4rec": bert4rec_model,
 }
 
 # ----------------------------------------------------------
