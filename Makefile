@@ -45,7 +45,7 @@ isort_fix: .venv
 black: .venv
 	black $(PROJECT) $(TESTS) -l 120
 
-format: isort_fix black
+format: black isort_fix
 
 
 # Lint
@@ -60,7 +60,7 @@ mypy: .venv
 	mypy $(PROJECT) $(TESTS)
 
 pylint: .venv
-	pylint $(PROJECT) $(TESTS) --disable=R0912
+	pylint $(PROJECT) $(TESTS) --disable=R0912 --extension-pkg-allow-list=hnswlib,nmslib
 
 lint: isort flake mypy pylint
 

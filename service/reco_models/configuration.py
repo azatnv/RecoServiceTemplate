@@ -29,3 +29,14 @@ ANN_PATHS = (
     ANN_watched_u2i,
     ANN_COLD_RECO_DICT,
 )
+
+
+DSSM_index = "models/dssm/index.hnsw"
+DSSM_user_vectors = "models/dssm/dssm_user_vectors.pickle"
+DSSM_user_id_to_uid = "models/dssm/user_id_to_uid.json"
+DSSM_iid_to_item_id = "models/dssm/iid_to_item_id.json"
+DSSM_uid_to_watched_iids = "models/dssm/uid_to_watched_iids.json"
+DSSM_dim = 128
+DSSM_ef_s = 50
+
+BERT4Rec_model_path = "models/bert4rec/user_id_to_bert4rec_recs.pickle"
