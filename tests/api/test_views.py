@@ -5,6 +5,7 @@ from starlette.testclient import TestClient
 from service.settings import ServiceConfig
 
 GET_RECO_PATH = "/reco/{model_name}/{user_id}"
+GET_EXPLAIN_PATH = "/explain/{model_name}/{user_id}/{item_id}"
 
 
 def test_health(
@@ -63,3 +64,18 @@ def test_bearer_failed(
         response = client.get(path, headers={"Authorization": f"Bearer {incorrect_bearer}"})
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json()["errors"][0]["error_key"] == "incorrect_bearer_key"
+
+
+def test_als_explain(
+    client: TestClient,
+    service_config: ServiceConfig,
+) -> None:
+    user_id = 662395
+    item_id = 4633
+    path = GET_EXPLAIN_PATH.format(model_name="als", user_id=user_id, item_id=item_id)
+    with client:
+        response = client.get(path, headers={"Authorization": "Bearer Team_5"})
+    assert response.status_code == HTTPStatus.OK
+    response_json = response.json()
+    assert response_json["p"] == 66
+    assert response_json["explanation"] == "Рекомендуем тем, кому нравится «Медиатор»"
