@@ -1,7 +1,9 @@
 from typing import Dict
 
+from .als_model import ALS
 from .bert4rec_model import BERT4Rec
 from .configuration import (
+    ALS_PATHS,
     OFFLINE_KNN_MODEL_PATH,
     ONLINE_KNN_MODEL_PATH,
     POPULAR_IN_CATEGORY,
@@ -22,7 +24,7 @@ from .model import RecommendationModel
 # from .lightfm_models import ANNLightFM, OnlineFM
 from .popular_models import PopularInCategory, SimplePopularModel, TestModel
 
-__all__ = ("models",)
+__all__ = ("models", "als_model")
 
 test_model = TestModel()
 
@@ -48,6 +50,8 @@ dssm_model = DSSM(
 
 bert4rec_model = BERT4Rec(model_path=BERT4Rec_model_path)
 
+als_model = ALS(ALS_PATHS)
+
 models: Dict[str, RecommendationModel] = {
     "test_model": test_model,
     "baseline": baseline_model,
@@ -59,6 +63,7 @@ models: Dict[str, RecommendationModel] = {
     # "ann_lightfm"
     "dssm": dssm_model,
     "bert4rec": bert4rec_model,
+    "als": als_model,
 }
 
 # ----------------------------------------------------------

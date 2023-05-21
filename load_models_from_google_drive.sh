@@ -28,3 +28,10 @@ download "models/dssm" "iid_to_item_id.json" "1-TrGCS_YmRWQkIeuhSXKsN7Xg3Nk_pEn"
 download "models/dssm" "uid_to_watched_iids.json" "1-QtArop7useHil5pIeAM2t-d9J1nKOhS"
 
 download "models/bert4rec" "user_id_to_bert4rec_recs.pickle" "15o1tIcsFlkQdmbw2Z9kucMzv724H-Qi8"
+
+download "models/als" "ui_csr.pickle" "1u73wI918JbDnRRGZ19hDVNePoX-E75Vk"
+download "models/als" "user_ext_to_int.pickle" "1-2AN1y039gPAl0oKUIN6KIuT-MkUDqtC"
+download "models/als" "item_int_to_ext.pickle" "1--1QkLMZgTzSiQSrDdLZcKvhAQgqONNa"
+download "models/als" "item_ext_to_int.pickle" "1d_ecNjQfpxNDwJSh6fP1f2HWrDiSy3ao"
+download "models/als" "als_model.pickle" "1-8gJuelBZwJFhq7IDN1U2N2zKjPW1-kw"
+download "models/als" "item_to_title.pickle" "1voF8cCfifroAsbJzFzc5DXC2j0MEGYIh"

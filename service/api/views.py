@@ -1,3 +1,4 @@
+import random
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, FastAPI, Request
@@ -16,12 +17,17 @@ from service.api.responses import (
     NotFoundError,
 )
 from service.log import app_logger
-from service.reco_models import models
+from service.reco_models import als_model, models
 
 
 class RecoResponse(BaseModel):
     user_id: int
     items: List[int]
+
+
+class ExplainResponse(BaseModel):
+    p: int
+    explanation: str
 
 
 bearer_scheme = HTTPBearer()
@@ -69,18 +75,34 @@ async def get_reco(
     else:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
 
-    # if model_name in ("light_fm_1", "light_fm_2"):
-    #     reco = (
-    #         online_fm_all_popular.predict(user_id, k_recs)
-    #         if model_name == "light_fm_1"
-    #         else online_fm_part_popular.predict(user_id, k_recs)
-    #     )
-    # if model_name == "ann_lightfm":
-    #     reco = ann_lightfm.predict(user_id)
-
     if not reco:
         reco = models["baseline"].predict(user_id, k_recs=k_recs)
     return RecoResponse(user_id=user_id, items=reco)
+
+
+@router.get(
+    path="/explain/{model_name}/{user_id}/{item_id}",
+    tags=["Explanations"],
+    response_model=ExplainResponse,
+)
+async def explain(request: Request, model_name: str, user_id: int, item_id: int) -> ExplainResponse:
+    """
+    Пользователь переходит на карточку контента, на которой нужно показать
+    процент релевантности этого контента зашедшему пользователю,
+    а также текстовое объяснение почему ему может понравится этот контент.
+
+    :param request: запрос.
+    :param model_name: название модели, для которой нужно получить объяснения.
+    :param user_id: id пользователя, для которого нужны объяснения.
+    :param item_id: id контента, для которого нужны объяснения.
+    :return: Response со значением процента релевантности и текстовым объяснением, понятным пользователю.
+    - "p": "процент релевантности контента item_id для пользователя user_id"
+    - "explanation": "текстовое объяснение почему рекомендован item_id"
+    """
+    p, explanation = als_model.explain(user_id, item_id)
+    if p is None:
+        return ExplainResponse(p=random.randint(50, 80), explanation="Вам может понравится")
+    return ExplainResponse(p=p, explanation=explanation)
 
 
 def add_views(app: FastAPI) -> None:

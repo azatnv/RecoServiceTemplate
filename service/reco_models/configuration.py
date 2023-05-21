@@ -40,3 +40,12 @@ DSSM_dim = 128
 DSSM_ef_s = 50
 
 BERT4Rec_model_path = "models/bert4rec/user_id_to_bert4rec_recs.pickle"
+
+ALS_PATHS = {
+    "ui_csr": "models/als/ui_csr.pickle",
+    "user_ext_to_int": "models/als/user_ext_to_int.pickle",
+    "item_int_to_ext": "models/als/item_int_to_ext.pickle",
+    "item_ext_to_int": "models/als/item_ext_to_int.pickle",
+    "als_model": "models/als/als_model.pickle",
+    "item_to_title": "models/als/item_to_title.pickle",
+}
